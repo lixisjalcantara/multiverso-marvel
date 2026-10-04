@@ -1,0 +1,288 @@
+@import "tailwindcss";
+
+@layer base {
+  body {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    background-color: #050508;
+    color: #f1f5f9;
+    overflow-x: hidden;
+  }
+}
+
+.font-cinzel {
+  font-family: 'Cinzel', serif;
+}
+
+.font-mono-numbers {
+  font-family: 'JetBrains Mono', monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Background Atmospheric Canvas */
+.cinema-bg {
+  background-color: #050508;
+  background-image: 
+    radial-gradient(ellipse 80% 45% at 50% -10%, rgba(237, 29, 36, 0.16) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 30% at 85% 40%, rgba(138, 43, 226, 0.08) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 25% at 15% 60%, rgba(30, 58, 138, 0.08) 0%, transparent 60%),
+    linear-gradient(to bottom, transparent, rgba(5, 5, 8, 0.98)),
+    radial-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 28px 28px;
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.cinema-bg-doomsday {
+  background-color: #020805;
+  background-image: 
+    radial-gradient(ellipse 80% 45% at 50% -10%, rgba(16, 185, 129, 0.22) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 30% at 85% 40%, rgba(6, 95, 70, 0.15) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 25% at 15% 60%, rgba(4, 120, 87, 0.12) 0%, transparent 60%),
+    linear-gradient(to bottom, transparent, rgba(2, 8, 5, 0.98)),
+    radial-gradient(rgba(16, 185, 129, 0.05) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 28px 28px;
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Glassmorphism Panels */
+.glass-panel {
+  background: rgba(13, 17, 24, 0.72);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-panel-doom {
+  background: rgba(6, 22, 16, 0.75);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  box-shadow: 0 10px 40px -10px rgba(16, 185, 129, 0.15);
+}
+
+/* Card Floating Glassmorphism */
+.card-floating {
+  background: rgba(14, 18, 25, 0.78);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.card-floating:hover {
+  transform: translateY(-5px);
+  background: rgba(19, 25, 36, 0.88);
+  border-color: rgba(255, 255, 255, 0.22);
+  box-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.7), 0 0 24px -2px rgba(237, 29, 36, 0.22);
+}
+
+.card-floating-doom:hover {
+  border-color: rgba(16, 185, 129, 0.6);
+  box-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.7), 0 0 28px 0 rgba(16, 185, 129, 0.35);
+}
+
+/* Holographic / Neon Badges System */
+.badge-neon {
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  transition: all 0.2s ease;
+}
+
+.badge-neon::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+  transition: left 0.5s ease;
+}
+
+.badge-neon:hover::before {
+  left: 100%;
+}
+
+.badge-ucm {
+  background: rgba(237, 29, 36, 0.14);
+  color: #ff5e65;
+  border: 1px solid rgba(237, 29, 36, 0.45);
+  box-shadow: 0 0 10px rgba(237, 29, 36, 0.2);
+}
+
+.badge-fox {
+  background: rgba(37, 99, 235, 0.14);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.45);
+  box-shadow: 0 0 10px rgba(37, 99, 235, 0.2);
+}
+
+.badge-sony {
+  background: rgba(245, 158, 11, 0.14);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.45);
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.2);
+}
+
+.badge-mtv {
+  background: rgba(147, 51, 234, 0.14);
+  color: #c084fc;
+  border: 1px solid rgba(168, 85, 247, 0.45);
+  box-shadow: 0 0 10px rgba(147, 51, 234, 0.2);
+}
+
+.badge-nline {
+  background: rgba(113, 113, 122, 0.18);
+  color: #e4e4e7;
+  border: 1px solid rgba(161, 161, 170, 0.4);
+  box-shadow: 0 0 8px rgba(113, 113, 122, 0.2);
+}
+
+/* Format Neon Badges */
+.badge-movie {
+  background: rgba(56, 189, 248, 0.12);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  box-shadow: 0 0 8px rgba(56, 189, 248, 0.18);
+}
+
+.badge-series {
+  background: rgba(192, 132, 252, 0.12);
+  color: #c084fc;
+  border: 1px solid rgba(192, 132, 252, 0.35);
+  box-shadow: 0 0 8px rgba(192, 132, 252, 0.18);
+}
+
+.badge-oneshot {
+  background: rgba(251, 191, 36, 0.12);
+  color: #fbbf24;
+  border: 1px solid rgba(251, 191, 36, 0.35);
+  box-shadow: 0 0 8px rgba(251, 191, 36, 0.18);
+}
+
+.badge-doomsday {
+  background: rgba(16, 185, 129, 0.18);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.55);
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.35);
+}
+
+/* Hide Scrollbar */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Conectores Cinematográficos para Grid de 3 Columnas */
+.timeline-card {
+  position: relative;
+}
+
+@media (min-width: 1024px) {
+  .timeline-card:not(:nth-child(3n))::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: -24px;
+    width: 24px;
+    height: 2px;
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.04));
+    z-index: 1;
+    pointer-events: none;
+  }
+  .timeline-card:not(:nth-child(3n))::before {
+    content: '►';
+    position: absolute;
+    top: 50%;
+    right: -27px;
+    transform: translateY(-50%);
+    color: rgba(255, 255, 255, 0.3);
+    font-size: 10px;
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  .timeline-doomsday:not(:nth-child(3n))::after {
+    background: linear-gradient(90deg, rgba(16, 185, 129, 0.5), rgba(16, 185, 129, 0.15));
+  }
+  .timeline-doomsday:not(:nth-child(3n))::before {
+    color: #10b981;
+    text-shadow: 0 0 8px rgba(16, 185, 129, 0.8);
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .timeline-card:not(:nth-child(2n))::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: -20px;
+    width: 20px;
+    height: 2px;
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.04));
+    pointer-events: none;
+  }
+  .timeline-doomsday:not(:nth-child(2n))::after {
+    background: linear-gradient(90deg, rgba(16, 185, 129, 0.5), rgba(16, 185, 129, 0.15));
+  }
+}
+
+@media (max-width: 767px) {
+  .timeline-card:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    bottom: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 2px;
+    height: 20px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.04));
+    pointer-events: none;
+  }
+  .timeline-doomsday:not(:last-child)::after {
+    background: linear-gradient(180deg, rgba(16, 185, 129, 0.5), rgba(16, 185, 129, 0.15));
+  }
+}
+
+/* Modal Dossier Animation & Scanlines */
+@keyframes dossierPop {
+  0% {
+    opacity: 0;
+    transform: scale(0.94) translateY(12px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.modal-shield-enter {
+  animation: dossierPop 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.shield-scanlines {
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.2),
+    rgba(0, 0, 0, 0.2) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  pointer-events: none;
+}
+
+/* Radar pulse animation */
+@keyframes pulseGlow {
+  0%, 100% { opacity: 0.8; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.05); }
+}
+
+.pulse-glow {
+  animation: pulseGlow 3s ease-in-out infinite;
+}

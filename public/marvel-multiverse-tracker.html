@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Marvel Multiverse Tracker - Cronología Cinematográfica</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- React 18 & ReactDOM CDN -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- Babel Standalone CDN -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- FontAwesome 6 -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;800;900&family=JetBrains+Mono:wght@400;500;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        marvel: '#ED1D24',
+                        doom: '#10b981',
+                        darkBg: '#050508'
+                    },
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                        cinzel: ['"Cinzel"', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { 
+            background-color: #050508; 
+            color: #f1f5f9; 
+            font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+            overflow-x: hidden;
+        }
+
+        .cinema-bg {
+            background-color: #050508;
+            background-image: 
+                radial-gradient(ellipse 80% 45% at 50% -10%, rgba(237, 29, 36, 0.16) 0%, transparent 70%),
+                radial-gradient(ellipse 60% 30% at 85% 40%, rgba(138, 43, 226, 0.08) 0%, transparent 60%),
+                radial-gradient(ellipse 50% 25% at 15% 60%, rgba(30, 58, 138, 0.08) 0%, transparent 60%),
+                linear-gradient(to bottom, transparent, rgba(5, 5, 8, 0.98)),
+                radial-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 28px 28px;
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .cinema-bg-doomsday {
+            background-color: #020805;
+            background-image: 
+                radial-gradient(ellipse 80% 45% at 50% -10%, rgba(16, 185, 129, 0.22) 0%, transparent 70%),
+                radial-gradient(ellipse 60% 30% at 85% 40%, rgba(6, 95, 70, 0.15) 0%, transparent 60%),
+                radial-gradient(ellipse 50% 25% at 15% 60%, rgba(4, 120, 87, 0.12) 0%, transparent 60%),
+                linear-gradient(to bottom, transparent, rgba(2, 8, 5, 0.98)),
+                radial-gradient(rgba(16, 185, 129, 0.05) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 28px 28px;
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .card-floating {
+            background: rgba(14, 18, 25, 0.78);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .card-floating:hover {
+            transform: translateY(-5px);
+            background: rgba(19, 25, 36, 0.88);
+            border-color: rgba(255, 255, 255, 0.22);
+            box-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.7), 0 0 24px -2px rgba(237, 29, 36, 0.22);
+        }
+
+        .card-floating-doom:hover {
+            border-color: rgba(16, 185, 129, 0.6);
+            box-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.7), 0 0 28px 0 rgba(16, 185, 129, 0.35);
+        }
+
+        /* Holographic & Neon Badges */
+        .badge-neon {
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            transition: all 0.2s ease;
+        }
+
+        .badge-ucm {
+            background: rgba(237, 29, 36, 0.14);
+            color: #ff5e65;
+            border: 1px solid rgba(237, 29, 36, 0.45);
+            box-shadow: 0 0 10px rgba(237, 29, 36, 0.2);
+        }
+
+        .badge-fox {
+            background: rgba(37, 99, 235, 0.14);
+            color: #60a5fa;
+            border: 1px solid rgba(59, 130, 246, 0.45);
+            box-shadow: 0 0 10px rgba(37, 99, 235, 0.2);
+        }
+
+        .badge-sony {
+            background: rgba(245, 158, 11, 0.14);
+            color: #fbbf24;
+            border: 1px solid rgba(245, 158, 11, 0.45);
+            box-shadow: 0 0 10px rgba(245, 158, 11, 0.2);
+        }
+
+        .badge-mtv {
+            background: rgba(147, 51, 234, 0.14);
+            color: #c084fc;
+            border: 1px solid rgba(168, 85, 247, 0.45);
+            box-shadow: 0 0 10px rgba(147, 51, 234, 0.2);
+        }
+
+        .badge-nline {
+            background: rgba(113, 113, 122, 0.18);
+            color: #e4e4e7;
+            border: 1px solid rgba(161, 161, 170, 0.4);
+            box-shadow: 0 0 8px rgba(113, 113, 122, 0.2);
+        }
+
+        .badge-movie {
+            background: rgba(56, 189, 248, 0.12);
+            color: #38bdf8;
+            border: 1px solid rgba(56, 189, 248, 0.35);
+            box-shadow: 0 0 8px rgba(56, 189, 248, 0.18);
+        }
+
+        .badge-series {
+            background: rgba(192, 132, 252, 0.12);
+            color: #c084fc;
+            border: 1px solid rgba(192, 132, 252, 0.35);
+            box-shadow: 0 0 8px rgba(192, 132, 252, 0.18);
+        }
+
+        .badge-oneshot {
+            background: rgba(251, 191, 36, 0.12);
+            color: #fbbf24;
+            border: 1px solid rgba(251, 191, 36, 0.35);
+            box-shadow: 0 0 8px rgba(251, 191, 36, 0.18);
+        }
+
+        .badge-doomsday {
+            background: rgba(16, 185, 129, 0.18);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.55);
+            box-shadow: 0 0 12px rgba(16, 185, 129, 0.35);
+        }
+
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        .tabular-nums {
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* Conectores visuales para Grid */
+        .timeline-card { position: relative; }
+        @media (min-width: 1024px) { 
+            .timeline-card:not(:nth-child(3n))::after {
+                content: ''; position: absolute; top: 50%; right: -24px; width: 24px; height: 2px;
+                background: linear-gradient(90deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.04));
+                z-index: 1; pointer-events: none;
+            }
+            .timeline-card:not(:nth-child(3n))::before {
+                content: '►'; position: absolute; top: 50%; right: -27px; transform: translateY(-50%);
+                color: rgba(255, 255, 255, 0.3); font-size: 10px; z-index: 2; pointer-events: none;
+            }
+
+            .timeline-doomsday:not(:nth-child(3n))::after {
+                background: linear-gradient(90deg, rgba(16, 185, 129, 0.5), rgba(16, 185, 129, 0.15));
+            }
+            .timeline-doomsday:not(:nth-child(3n))::before {
+                color: #10b981;
+                text-shadow: 0 0 8px rgba(16, 185, 129, 0.8);
+            }
+        }
+        @media (min-width: 768px) and (max-width: 1023px) { 
+            .timeline-card:not(:nth-child(2n))::after {
+                content: ''; position: absolute; top: 50%; right: -20px; width: 20px; height: 2px;
+                background: linear-gradient(90deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.04));
+                pointer-events: none;
+            }
+            .timeline-doomsday:not(:nth-child(2n))::after {
+                background: linear-gradient(90deg, rgba(16, 185, 129, 0.5), rgba(16, 185, 129, 0.15));
+            }
+        }
+        @media (max-width: 767px) { 
+            .timeline-card:not(:last-child)::after {
+                content: ''; position: absolute; bottom: -20px; left: 50%; transform: translateX(-50%);
+                width: 2px; height: 20px;
+                background: linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.04));
+                pointer-events: none;
+            }
+            .timeline-doomsday:not(:last-child)::after {
+                background: linear-gradient(180deg, rgba(16, 185, 129, 0.5), rgba(16, 185, 129, 0.15));
+            }
+        }
+
+        .modal-shield-enter { 
+            animation: dossierPop 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards; 
+        }
+        @keyframes dossierPop { 
+            from { opacity: 0; transform: scale(0.94) translateY(12px); } 
+            to { opacity: 1; transform: scale(1) translateY(0); } 
+        }
+
+        .shield-scanlines {
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 0, 0, 0.2),
+                rgba(0, 0, 0, 0.2) 1px,
+                transparent 1px,
+                transparent 3px
+            );
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        // Base de datos completa oficial (103 producciones)
+        const marvelData = [
+            {id: 1, tEs: 'Los ojos de Wakanda', tEn: 'Eyes of Wakanda', y_in: 1000, y_out: 2025, ty: 'series', s: 1, ep: 4, d: 120, pc: 0, cr: false, uni: 'UCM', dir: 'Todd Harris', syn: 'A lo largo de la historia, guerreros de Wakanda han viajado por el mundo recuperando artefactos de vibranium.'},
+            {id: 2, tEs: 'Capitán América: El primer vengador', tEn: 'Captain America: The First Avenger', y_in: 1943, y_out: 2011, ty: 'movie', d: 124, pc: 1, cr: true, uni: 'UCM', dir: 'Joe Johnston', syn: 'Steve Rogers se convierte en el Súper Soldado para luchar contra HYDRA durante la Segunda Guerra Mundial.'},
+            {id: 3, tEs: 'Agent Carter (One-Shot)', tEn: 'Agent Carter', y_in: 1944, y_out: 2013, ty: 'oneshot', d: 15, pc: 1, cr: false, uni: 'UCM', dir: 'Louis D\'Esposito', syn: 'Peggy Carter emprende una misión no autorizada para recuperar el misterioso Zodiac.'},
+            {id: 4, tEs: 'Agente Carter', tEn: 'Agent Carter', y_in: 1946, y_out: 2015, ty: 'series', s: 2, ep: 18, d: 770, pc: 0, cr: false, uni: 'MTV', dir: 'Varios', syn: 'Peggy Carter lidia con la marginación en el trabajo mientras ayuda en secreto a Howard Stark.'},
+            {id: 5, tEs: 'X-Men: Primera Generación', tEn: 'X-Men: First Class', y_in: 1962, y_out: 2011, ty: 'movie', d: 132, pc: 0, cr: true, uni: 'FOX', dir: 'Matthew Vaughn', syn: 'Charles Xavier y Erik Lehnsherr descubren sus poderes y forman los X-Men y la Hermandad.'},
+            {id: 6, tEs: 'Los 4 fantásticos: Primeros pasos', tEn: 'The Fantastic Four: First Steps', y_in: 1964, y_out: 2025, ty: 'movie', d: 130, pc: 2, cr: true, uni: 'UCM', dir: 'Matt Shakman', syn: 'La primera familia de Marvel en un universo retro-futurista de los años 60.'},
+            {id: 7, tEs: 'X-Men: Días del futuro pasado', tEn: 'X-Men: Days of Future Past', y_in: 1973, y_out: 2014, ty: 'movie', d: 132, pc: 1, cr: true, uni: 'FOX', dir: 'Bryan Singer', syn: 'Wolverine es enviado al pasado para evitar un evento apocalíptico para los mutantes.'},
+            {id: 8, tEs: 'X-Men Orígenes: Lobezno', tEn: 'X-Men Origins: Wolverine', y_in: 1979, y_out: 2009, ty: 'movie', d: 107, pc: 1, cr: false, uni: 'FOX', dir: 'Gavin Hood', syn: 'El pasado de Logan, su relación con Victor Creed y el programa Arma X.'},
+            {id: 9, tEs: 'X-Men: Apocalipsis', tEn: 'X-Men: Apocalypse', y_in: 1983, y_out: 2016, ty: 'movie', d: 144, pc: 1, cr: false, uni: 'FOX', dir: 'Bryan Singer', syn: 'El primer y más poderoso mutante, Apocalipsis, despierta tras miles de años.'},
+            {id: 10, tEs: 'X-Men: Fénix Oscura', tEn: 'Dark Phoenix', y_in: 1992, y_out: 2019, ty: 'movie', d: 114, pc: 0, cr: false, uni: 'FOX', dir: 'Simon Kinberg', syn: 'Jean Grey desarrolla poderes inmensos que la corrompen, convirtiéndola en una amenaza.'},
+            {id: 11, tEs: 'Capitana Marvel', tEn: 'Captain Marvel', y_in: 1995, y_out: 2019, ty: 'movie', d: 123, pc: 2, cr: false, uni: 'UCM', dir: 'Boden & Fleck', syn: 'Carol Danvers se convierte en una de las heroínas más poderosas en medio de una guerra galáctica.'},
+            {id: 12, tEs: 'Blade', tEn: 'Blade', y_in: 1998, y_out: 1998, ty: 'movie', d: 120, pc: 0, cr: false, uni: 'NLINE', dir: 'Stephen Norrington', syn: 'Un caminante diurno protege a la humanidad cazando vampiros.'},
+            {id: 13, tEs: 'X-Men', tEn: 'X-Men', y_in: 2000, y_out: 2000, ty: 'movie', d: 104, pc: 0, cr: true, uni: 'FOX', dir: 'Bryan Singer', syn: 'Rogue y Wolverine son arrastrados al conflicto entre el Profesor X y Magneto.'},
+            {id: 14, tEs: 'Spider-Man', tEn: 'Spider-Man', y_in: 2002, y_out: 2002, ty: 'movie', d: 121, pc: 0, cr: true, uni: 'SONY', dir: 'Sam Raimi', syn: 'Peter Parker asume su identidad como Spider-Man y enfrenta al Duende Verde.'},
+            {id: 15, tEs: 'Blade II', tEn: 'Blade II', y_in: 2002, y_out: 2002, ty: 'movie', d: 117, pc: 0, cr: false, uni: 'NLINE', dir: 'Guillermo del Toro', syn: 'Blade debe aliarse con los vampiros para derrotar a una nueva mutación.'},
+            {id: 16, tEs: 'Madame Web', tEn: 'Madame Web', y_in: 2003, y_out: 2024, ty: 'movie', d: 116, pc: 0, cr: false, uni: 'SONY', dir: 'S.J. Clarkson', syn: 'Cassandra Webb desarrolla poderes de clarividencia y protege a tres jóvenes.'},
+            {id: 17, tEs: 'Daredevil', tEn: 'Daredevil', y_in: 2003, y_out: 2003, ty: 'movie', d: 103, pc: 0, cr: false, uni: 'FOX', dir: 'Mark Steven Johnson', syn: 'El abogado ciego Matt Murdock lucha contra el crimen en Hell\'s Kitchen.'},
+            {id: 18, tEs: 'X-Men 2', tEn: 'X2: X-Men United', y_in: 2003, y_out: 2003, ty: 'movie', d: 134, pc: 0, cr: true, uni: 'FOX', dir: 'Bryan Singer', syn: 'Los X-Men se unen a Magneto para detener a William Stryker.'},
+            {id: 19, tEs: 'Hulk', tEn: 'Hulk', y_in: 2003, y_out: 2003, ty: 'movie', d: 138, pc: 0, cr: false, uni: 'UCM', dir: 'Ang Lee', syn: 'Bruce Banner lucha contra el monstruo en su interior y su propio pasado.'},
+            {id: 20, tEs: 'Spider-Man 2', tEn: 'Spider-Man 2', y_in: 2004, y_out: 2004, ty: 'movie', d: 127, pc: 0, cr: true, uni: 'SONY', dir: 'Sam Raimi', syn: 'Peter enfrenta al Doctor Octopus mientras su vida personal se desmorona.'},
+            {id: 21, tEs: 'Blade Trinity', tEn: 'Blade: Trinity', y_in: 2004, y_out: 2004, ty: 'movie', d: 113, pc: 1, cr: false, uni: 'NLINE', dir: 'David S. Goyer', syn: 'Blade une fuerzas con cazadores humanos para enfrentar a Drácula.'},
+            {id: 22, tEs: 'Elektra', tEn: 'Elektra', y_in: 2005, y_out: 2005, ty: 'movie', d: 97, pc: 0, cr: false, uni: 'FOX', dir: 'Rob Bowman', syn: 'La asesina Elektra debe proteger a un padre y su hija de ninjas sobrenaturales.'},
+            {id: 23, tEs: 'Los 4 Fantásticos', tEn: 'Fantastic Four', y_in: 2005, y_out: 2005, ty: 'movie', d: 106, pc: 0, cr: true, uni: 'FOX', dir: 'Tim Story', syn: 'Cuatro astronautas obtienen poderes y enfrentan a Doctor Doom.'},
+            {id: 24, tEs: 'X-Men: La decisión final', tEn: 'X-Men: The Last Stand', y_in: 2006, y_out: 2006, ty: 'movie', d: 104, pc: 1, cr: true, uni: 'FOX', dir: 'Brett Ratner', syn: 'Una cura mutante divide a la comunidad mientras Jean Grey desata su poder.'},
+            {id: 25, tEs: 'Spider-Man 3', tEn: 'Spider-Man 3', y_in: 2007, y_out: 2007, ty: 'movie', d: 139, pc: 0, cr: false, uni: 'SONY', dir: 'Sam Raimi', syn: 'Peter lidia con un simbionte alienígena, Sandman y el nuevo Duende Verde.'},
+            {id: 26, tEs: 'Ghost Rider', tEn: 'Ghost Rider', y_in: 2007, y_out: 2007, ty: 'movie', d: 110, pc: 0, cr: false, uni: 'SONY', dir: 'Mark Steven Johnson', syn: 'Johnny Blaze vende su alma al diablo y se convierte en el Vengador Fantasma.'},
+            {id: 27, tEs: 'Los 4 Fantásticos y Silver Surfer', tEn: 'Fantastic Four: Rise of the Silver Surfer', y_in: 2007, y_out: 2007, ty: 'movie', d: 92, pc: 1, cr: true, uni: 'FOX', dir: 'Tim Story', syn: 'El equipo enfrenta a un heraldo alienígena y el regreso de Doom.'},
+            {id: 28, tEs: 'Iron Man', tEn: 'Iron Man', y_in: 2008, y_out: 2008, ty: 'movie', d: 126, pc: 1, cr: true, uni: 'UCM', dir: 'Jon Favreau', syn: 'Tony Stark construye una armadura y nace Iron Man.'},
+            {id: 29, tEs: 'El increíble Hulk', tEn: 'The Incredible Hulk', y_in: 2008, y_out: 2008, ty: 'movie', d: 112, pc: 1, cr: false, uni: 'UCM', dir: 'Louis Leterrier', syn: 'Bruce Banner busca una cura mientras escapa del ejército.'},
+            {id: 30, tEs: 'El Consultor (One-Shot)', tEn: 'The Consultant', y_in: 2008, y_out: 2011, ty: 'oneshot', d: 4, pc: 0, cr: false, uni: 'UCM', dir: 'Leythum', syn: 'Coulson y Sitwell manipulan eventos para la Iniciativa Vengadores.'},
+            {id: 31, tEs: 'Iron Man 2', tEn: 'Iron Man 2', y_in: 2010, y_out: 2010, ty: 'movie', d: 124, pc: 1, cr: false, uni: 'UCM', dir: 'Jon Favreau', syn: 'Tony Stark enfrenta las consecuencias de revelar su identidad.'},
+            {id: 32, tEs: 'Algo divertido pasó... (One-Shot)', tEn: 'A Funny Thing...', y_in: 2010, y_out: 2011, ty: 'oneshot', d: 4, pc: 0, cr: false, uni: 'UCM', dir: 'Leythum', syn: 'Coulson detiene un robo camino al martillo de Thor.'},
+            {id: 33, tEs: 'Thor', tEn: 'Thor', y_in: 2011, y_out: 2011, ty: 'movie', d: 115, pc: 1, cr: false, uni: 'UCM', dir: 'Kenneth Branagh', syn: 'El dios del trueno es desterrado a la Tierra y debe probar su valía.'},
+            {id: 34, tEs: 'Los Vengadores', tEn: 'The Avengers', y_in: 2012, y_out: 2012, ty: 'movie', d: 143, pc: 2, cr: true, uni: 'UCM', dir: 'Joss Whedon', syn: 'Los héroes se unen para repeler la invasión Chitauri liderada por Loki.'},
+            {id: 35, tEs: 'Item 47 (One-Shot)', tEn: 'Item 47', y_in: 2012, y_out: 2012, ty: 'oneshot', d: 12, pc: 1, cr: false, uni: 'UCM', dir: 'L. D\'Esposito', syn: 'Una pareja encuentra un arma Chitauri y comienza a robar bancos.'},
+            {id: 36, tEs: 'The Amazing Spider-Man', tEn: 'The Amazing Spider-Man', y_in: 2012, y_out: 2012, ty: 'movie', d: 136, pc: 1, cr: true, uni: 'SONY', dir: 'Marc Webb', syn: 'Peter Parker investiga a Oscorp y enfrenta al Lagarto.'},
+            {id: 37, tEs: 'Iron Man 3', tEn: 'Iron Man 3', y_in: 2013, y_out: 2013, ty: 'movie', d: 130, pc: 1, cr: false, uni: 'UCM', dir: 'Shane Black', syn: 'Stark enfrenta estrés post-traumático y al terrorista "El Mandarín".'},
+            {id: 38, tEs: 'Todos aclaman al Rey (One-Shot)', tEn: 'All Hail the King', y_in: 2013, y_out: 2014, ty: 'oneshot', d: 14, pc: 1, cr: false, uni: 'UCM', dir: 'Drew Pearce', syn: 'Trevor Slattery descubre las consecuencias de hacerse pasar por el Mandarín.'},
+            {id: 39, tEs: 'Thor: El mundo oscuro', tEn: 'Thor: The Dark World', y_in: 2013, y_out: 2013, ty: 'movie', d: 112, pc: 2, cr: false, uni: 'UCM', dir: 'Alan Taylor', syn: 'Thor protege la realidad del Elfo Oscuro Malekith y el Éter.'},
+            {id: 40, tEs: 'Lobezno Inmortal', tEn: 'The Wolverine', y_in: 2013, y_out: 2013, ty: 'movie', d: 126, pc: 1, cr: false, uni: 'FOX', dir: 'James Mangold', syn: 'Logan viaja a Japón y enfrenta fantasmas de su pasado.'},
+            {id: 41, tEs: 'Agents of S.H.I.E.L.D.', tEn: 'Agents of S.H.I.E.L.D.', y_in: 2013, y_out: 2013, ty: 'series', s: 7, ep: 136, d: 5848, pc: 0, cr: false, uni: 'MTV', dir: 'Varios', syn: 'El agente Phil Coulson forma un equipo para investigar lo nuevo, extraño y desconocido.'},
+            {id: 42, tEs: 'Capitán América: El Soldado de Invierno', tEn: 'Captain America: The Winter Soldier', y_in: 2014, y_out: 2014, ty: 'movie', d: 136, pc: 2, cr: false, uni: 'UCM', dir: 'Russo Bros', syn: 'Steve Rogers descubre que S.H.I.E.L.D. ha estado comprometida por HYDRA.'},
+            {id: 43, tEs: 'The Amazing Spider-Man 2', tEn: 'The Amazing Spider-Man 2', y_in: 2014, y_out: 2014, ty: 'movie', d: 142, pc: 1, cr: true, uni: 'SONY', dir: 'Marc Webb', syn: 'Spider-Man se enfrenta a Electro y al Duende Verde.'},
+            {id: 44, tEs: 'Guardianes de la Galaxia', tEn: 'Guardians of the Galaxy', y_in: 2014, y_out: 2014, ty: 'movie', d: 121, pc: 2, cr: false, uni: 'UCM', dir: 'James Gunn', syn: 'Un grupo de criminales espaciales se unen para proteger un orbe poderoso.'},
+            {id: 45, tEs: 'Guardianes de la Galaxia Vol. 2', tEn: 'Guardians of the Galaxy Vol. 2', y_in: 2014, y_out: 2017, ty: 'movie', d: 136, pc: 5, cr: false, uni: 'UCM', dir: 'James Gunn', syn: 'Los guardianes descubren el verdadero origen del padre de Peter Quill, Ego.'},
+            {id: 46, tEs: 'Yo soy Groot', tEn: 'I Am Groot', y_in: 2014, y_out: 2022, ty: 'series', s: 2, ep: 10, d: 45, pc: 0, cr: false, uni: 'UCM', dir: 'Kirsten Lepore', syn: 'Cortos que siguen los primeros pasos de Baby Groot explorando la galaxia.'},
+            {id: 47, tEs: 'Daredevil', tEn: 'Daredevil', y_in: 2015, y_out: 2015, ty: 'series', s: 3, ep: 39, d: 1950, pc: 0, cr: false, uni: 'MTV', dir: 'Varios', syn: 'Matt Murdock lucha contra el crimen en Hell\'s Kitchen y contra Kingpin.'},
+            {id: 48, tEs: 'Jessica Jones', tEn: 'Jessica Jones', y_in: 2015, y_out: 2015, ty: 'series', s: 3, ep: 39, d: 1950, pc: 0, cr: false, uni: 'MTV', dir: 'Varios', syn: 'Una investigadora privada con fuerza sobrehumana lidia con su trauma.'},
+            {id: 49, tEs: 'Luke Cage', tEn: 'Luke Cage', y_in: 2016, y_out: 2016, ty: 'series', s: 2, ep: 26, d: 1300, pc: 0, cr: false, uni: 'MTV', dir: 'Varios', syn: 'Un exconvicto con piel impenetrable protege Harlem.'},
+            {id: 50, tEs: 'Iron Fist', tEn: 'Iron Fist', y_in: 2017, y_out: 2017, ty: 'series', s: 2, ep: 23, d: 1100, pc: 0, cr: false, uni: 'MTV', dir: 'Varios', syn: 'Danny Rand regresa a NY armado con artes marciales místicas.'},
+            {id: 51, tEs: 'The Defenders', tEn: 'The Defenders', y_in: 2017, y_out: 2017, ty: 'series', s: 1, ep: 8, d: 400, pc: 0, cr: false, uni: 'MTV', dir: 'Varios', syn: 'Daredevil, Jessica Jones, Luke Cage y Iron Fist se unen para salvar NY.'},
+            {id: 52, tEs: 'The Punisher', tEn: 'The Punisher', y_in: 2017, y_out: 2017, ty: 'series', s: 2, ep: 26, d: 1300, pc: 0, cr: false, uni: 'MTV', dir: 'Varios', syn: 'Frank Castle busca venganza despiadada por el asesinato de su familia.'},
+            {id: 53, tEs: 'Vengadores: La era de Ultrón', tEn: 'Avengers: Age of Ultron', y_in: 2015, y_out: 2015, ty: 'movie', d: 141, pc: 1, cr: true, uni: 'UCM', dir: 'Joss Whedon', syn: 'Tony Stark crea accidentalmente una IA que busca extinguir la humanidad.'},
+            {id: 54, tEs: 'Ant-Man', tEn: 'Ant-Man', y_in: 2015, y_out: 2015, ty: 'movie', d: 117, pc: 2, cr: true, uni: 'UCM', dir: 'Peyton Reed', syn: 'Scott Lang asume el manto de Ant-Man y se introduce el Reino Cuántico.'},
+            {id: 55, tEs: 'Cuatro Fantásticos', tEn: 'Fant4stic', y_in: 2015, y_out: 2015, ty: 'movie', d: 100, pc: 0, cr: true, uni: 'FOX', dir: 'Josh Trank', syn: 'Reinicio de la historia de origen de los 4 Fantásticos en una dimensión paralela.'},
+            {id: 56, tEs: 'Deadpool', tEn: 'Deadpool', y_in: 2016, y_out: 2016, ty: 'movie', d: 108, pc: 2, cr: true, uni: 'FOX', dir: 'Tim Miller', syn: 'Wade Wilson se somete a un experimento y se convierte en el Mercenario Bocazas.'},
+            {id: 57, tEs: 'Capitán América: Civil War', tEn: 'Captain America: Civil War', y_in: 2016, y_out: 2016, ty: 'movie', d: 147, pc: 2, cr: true, uni: 'UCM', dir: 'Russo Bros', syn: 'Acuerdos gubernamentales fracturan a los Vengadores en facciones opuestas.'},
+            {id: 58, tEs: 'Viuda Negra', tEn: 'Black Widow', y_in: 2016, y_out: 2021, ty: 'movie', d: 134, pc: 1, cr: false, uni: 'UCM', dir: 'Cate Shortland', syn: 'Natasha confronta su pasado en la Habitación Roja tras los eventos de Civil War.'},
+            {id: 59, tEs: 'Black Panther', tEn: 'Black Panther', y_in: 2016, y_out: 2018, ty: 'movie', d: 134, pc: 2, cr: false, uni: 'UCM', dir: 'Ryan Coogler', syn: 'T\'Challa asciende al trono y debe proteger a Wakanda de Erik Killmonger.'},
+            {id: 60, tEs: 'Spider-Man: Homecoming', tEn: 'Spider-Man: Homecoming', y_in: 2016, y_out: 2017, ty: 'movie', d: 133, pc: 2, cr: false, uni: 'UCM', dir: 'Jon Watts', syn: 'Peter Parker intenta demostrar que es un Vengador enfrentando al Buitre.'},
+            {id: 61, tEs: 'Doctor Strange', tEn: 'Doctor Strange', y_in: 2016, y_out: 2016, ty: 'movie', d: 115, pc: 2, cr: true, uni: 'UCM', dir: 'Scott Derrickson', syn: 'Stephen Strange descubre las artes místicas y las dimensiones alternas.'},
+            {id: 62, tEs: 'Runaways', tEn: 'Runaways', y_in: 2017, y_out: 2017, ty: 'series', s: 3, ep: 33, d: 1500, pc: 0, cr: false, uni: 'MTV', dir: 'Varios', syn: 'Adolescentes descubren que sus padres son supervillanos de una organización secreta.'},
+            {id: 63, tEs: 'Cloak & Dagger', tEn: 'Cloak & Dagger', y_in: 2018, y_out: 2018, ty: 'series', s: 2, ep: 20, d: 880, pc: 0, cr: false, uni: 'MTV', dir: 'Varios', syn: 'Dos adolescentes de diferentes orígenes descubren que sus poderes están conectados.'},
+            {id: 64, tEs: 'Thor: Ragnarok', tEn: 'Thor: Ragnarok', y_in: 2017, y_out: 2017, ty: 'movie', d: 130, pc: 2, cr: false, uni: 'UCM', dir: 'Taika Waititi', syn: 'Thor debe escapar de Sakaar para salvar Asgard de la diosa Hela.'},
+            {id: 65, tEs: 'Venom', tEn: 'Venom', y_in: 2018, y_out: 2018, ty: 'movie', d: 112, pc: 2, cr: false, uni: 'SONY', dir: 'Ruben Fleischer', syn: 'Eddie Brock se fusiona con un simbionte alienígena y obtiene poderes.'},
+            {id: 66, tEs: 'Ant-Man y la Avispa', tEn: 'Ant-Man and the Wasp', y_in: 2018, y_out: 2018, ty: 'movie', d: 118, pc: 2, cr: true, uni: 'UCM', dir: 'Peyton Reed', syn: 'Scott y Hope viajan al Reino Cuántico para rescatar a Janet van Dyne.'},
+            {id: 67, tEs: 'Deadpool 2', tEn: 'Deadpool 2', y_in: 2018, y_out: 2018, ty: 'movie', d: 119, pc: 4, cr: true, uni: 'FOX', dir: 'David Leitch', syn: 'Wade Wilson viaja por el tiempo y forma la X-Force.'},
+            {id: 68, tEs: 'Vengadores: Infinity War', tEn: 'Avengers: Infinity War', y_in: 2018, y_out: 2018, ty: 'movie', d: 149, pc: 1, cr: true, uni: 'UCM', dir: 'Russo Bros', syn: 'Thanos recolecta las Gemas del Infinito para aniquilar a la mitad del universo.'},
+            {id: 69, tEs: 'Vengadores: Endgame', tEn: 'Avengers: Endgame', y_in: 2023, y_out: 2019, ty: 'movie', d: 181, pc: 0, cr: true, uni: 'UCM', dir: 'Russo Bros', syn: 'Los Vengadores viajan en el tiempo para deshacer el Chasquido de Thanos.'},
+            {id: 70, tEs: 'Loki', tEn: 'Loki', y_in: 2023, y_out: 2021, ty: 'series', s: 2, ep: 12, d: 550, pc: 2, cr: true, uni: 'UCM', dir: 'Herron / Benson', syn: 'Loki es arrestado por la TVA y se desencadena el Multiverso.'},
+            {id: 71, tEs: '¿Qué pasaría si...?', tEn: 'What If...?', y_in: 2023, y_out: 2021, ty: 'series', s: 3, ep: 27, d: 810, pc: 1, cr: true, uni: 'UCM', dir: 'Bryan Andrews', syn: 'El Vigilante explora universos alternos dentro del recién fracturado Multiverso.'},
+            {id: 72, tEs: 'Bruja Escarlata y Visión', tEn: 'WandaVision', y_in: 2023, y_out: 2021, ty: 'series', s: 1, ep: 9, d: 350, pc: 2, cr: true, uni: 'UCM', dir: 'Matt Shakman', syn: 'Wanda altera la realidad y abraza su destino como la Bruja Escarlata.'},
+            {id: 73, tEs: 'Shang-Chi', tEn: 'Shang-Chi and the Legend of the Ten Rings', y_in: 2024, y_out: 2021, ty: 'movie', d: 132, pc: 2, cr: false, uni: 'UCM', dir: 'Destin Daniel Cretton', syn: 'Shang-Chi debe enfrentar su pasado y a su padre, el líder de los Diez Anillos.'},
+            {id: 74, tEs: 'Falcon y el Soldado de Invierno', tEn: 'The Falcon and the Winter Soldier', y_in: 2024, y_out: 2021, ty: 'series', s: 1, ep: 6, d: 300, pc: 1, cr: false, uni: 'UCM', dir: 'Kari Skogland', syn: 'Sam y Bucky se unen en una aventura global que pone a prueba sus habilidades.'},
+            {id: 75, tEs: 'Spider-man: Lejos de casa', tEn: 'Spider-Man: Far From Home', y_in: 2024, y_out: 2019, ty: 'movie', d: 129, pc: 2, cr: false, uni: 'UCM', dir: 'Jon Watts', syn: 'Peter viaja por Europa y enfrenta a Mysterio mientras supera la pérdida de Tony Stark.'},
+            {id: 76, tEs: 'Venom: Habrá Matanza', tEn: 'Venom: Let There Be Carnage', y_in: 2024, y_out: 2021, ty: 'movie', d: 97, pc: 1, cr: false, uni: 'SONY', dir: 'Andy Serkis', syn: 'Eddie Brock enfrenta a Cletus Kasady, quien se convierte en el simbionte Carnage.'},
+            {id: 77, tEs: 'Spider-Man: No Way Home', tEn: 'Spider-Man: No Way Home', y_in: 2024, y_out: 2021, ty: 'movie', d: 148, pc: 2, cr: true, uni: 'UCM', dir: 'Jon Watts', syn: 'El hechizo de Strange sale mal y colisionan las realidades de Spider-Man.'},
+            {id: 78, tEs: 'Morbius', tEn: 'Morbius', y_in: 2024, y_out: 2022, ty: 'movie', d: 104, pc: 2, cr: false, uni: 'SONY', dir: 'Daniel Espinosa', syn: 'El bioquímico Michael Morbius se infecta con una forma de vampirismo.'},
+            {id: 79, tEs: 'Doctor Strange en el multiverso de la locura', tEn: 'Doctor Strange 2', y_in: 2024, y_out: 2022, ty: 'movie', d: 126, pc: 2, cr: true, uni: 'UCM', dir: 'Sam Raimi', syn: 'Strange viaja por realidades alternativas para proteger el multiverso de Wanda.'},
+            {id: 80, tEs: 'Ojo de Halcón', tEn: 'Hawkeye', y_in: 2024, y_out: 2021, ty: 'series', s: 1, ep: 6, d: 270, pc: 1, cr: false, uni: 'UCM', dir: 'Rhys Thomas', syn: 'Clint Barton y Kate Bishop deben resolver un misterio en Nueva York antes de Navidad.'},
+            {id: 81, tEs: 'Caballero Luna', tEn: 'Moon Knight', y_in: 2025, y_out: 2022, ty: 'series', s: 1, ep: 6, d: 280, pc: 1, cr: false, uni: 'UCM', dir: 'Mohamed Diab', syn: 'Un empleado de museo con trastorno de identidad disociativo se involucra en un misterio egipcio.'},
+            {id: 82, tEs: 'Black Panther: Wakanda Forever', tEn: 'Wakanda Forever', y_in: 2025, y_out: 2022, ty: 'movie', d: 161, pc: 1, cr: false, uni: 'UCM', dir: 'Ryan Coogler', syn: 'Wakanda llora la pérdida de su rey mientras enfrenta la amenaza de Namor.'},
+            {id: 83, tEs: 'She-Hulk: Abogada Hulka', tEn: 'She-Hulk', y_in: 2025, y_out: 2022, ty: 'series', s: 1, ep: 9, d: 280, pc: 1, cr: false, uni: 'UCM', dir: 'Kat Coiro', syn: 'Jennifer Walters equilibra su vida como abogada y superheroína gigante verde.'},
+            {id: 84, tEs: 'Ms. Marvel', tEn: 'Ms. Marvel', y_in: 2025, y_out: 2022, ty: 'series', s: 1, ep: 6, d: 280, pc: 1, cr: false, uni: 'UCM', dir: 'El Arbi / Fallah', syn: 'Kamala Khan, una adolescente fan de los Vengadores, obtiene poderes cósmicos.'},
+            {id: 85, tEs: 'Thor: Love and Thunder', tEn: 'Thor: Love and Thunder', y_in: 2025, y_out: 2022, ty: 'movie', d: 119, pc: 2, cr: false, uni: 'UCM', dir: 'Taika Waititi', syn: 'Thor une fuerzas con Jane Foster para detener a Gorr, el Carnicero de Dioses.'},
+            {id: 86, tEs: 'La maldición del hombre lobo', tEn: 'Werewolf by Night', y_in: 2025, y_out: 2022, ty: 'oneshot', d: 53, pc: 0, cr: false, uni: 'UCM', dir: 'Michael Giacchino', syn: 'Cazadores de monstruos se reúnen para competir por una poderosa reliquia.'},
+            {id: 87, tEs: 'Especial Felices Fiestas', tEn: 'GotG Holiday Special', y_in: 2025, y_out: 2022, ty: 'oneshot', d: 42, pc: 1, cr: false, uni: 'UCM', dir: 'James Gunn', syn: 'Mantis y Drax viajan a la Tierra para secuestrar a Kevin Bacon como regalo.'},
+            {id: 88, tEs: 'Ant-Man y la Avispa: Quantumania', tEn: 'Quantumania', y_in: 2026, y_out: 2023, ty: 'movie', d: 125, pc: 2, cr: true, uni: 'UCM', dir: 'Peyton Reed', syn: 'El Reino Cuántico se expande y surge Kang el Conquistador.'},
+            {id: 89, tEs: 'Guardianes de la Galaxia Vol. 3', tEn: 'GotG Vol. 3', y_in: 2026, y_out: 2023, ty: 'movie', d: 150, pc: 2, cr: false, uni: 'UCM', dir: 'James Gunn', syn: 'Los Guardianes luchan por salvar la vida de Rocket y confrontan al Alto Evolucionador.'},
+            {id: 90, tEs: 'Invasión secreta', tEn: 'Secret Invasion', y_in: 2026, y_out: 2023, ty: 'series', s: 1, ep: 6, d: 250, pc: 0, cr: false, uni: 'UCM', dir: 'Ali Selim', syn: 'Nick Fury regresa a la Tierra para detener una invasión silenciosa de Skrulls.'},
+            {id: 91, tEs: 'The Marvels', tEn: 'The Marvels', y_in: 2026, y_out: 2023, ty: 'movie', d: 105, pc: 1, cr: true, uni: 'UCM', dir: 'Nia DaCosta', syn: 'Colapso de realidades que introduce el cruce oficial con el universo mutante.'},
+            {id: 92, tEs: 'Echo', tEn: 'Echo', y_in: 2025, y_out: 2024, ty: 'series', s: 1, ep: 5, d: 200, pc: 1, cr: false, uni: 'UCM', dir: 'Sydney Freeland', syn: 'Maya López es perseguida por el imperio criminal de Kingpin y regresa a sus raíces.'},
+            {id: 93, tEs: 'Deadpool y Lobezno', tEn: 'Deadpool & Wolverine', y_in: 2024, y_out: 2024, ty: 'movie', d: 127, pc: 1, cr: true, uni: 'UCM', dir: 'Shawn Levy', syn: 'La TVA recluta a Deadpool, quien busca la ayuda de Wolverine para salvar su línea temporal.'},
+            {id: 94, tEs: 'Kraven el Cazador', tEn: 'Kraven the Hunter', y_in: 2024, y_out: 2024, ty: 'movie', d: 120, pc: 1, cr: false, uni: 'SONY', dir: 'J.C. Chandor', syn: 'Historia del origen del infame villano y cazador ruso.'},
+            {id: 95, tEs: 'Venom: El Último Baile', tEn: 'Venom: The Last Dance', y_in: 2024, y_out: 2024, ty: 'movie', d: 120, pc: 2, cr: false, uni: 'SONY', dir: 'Kelly Marcel', syn: 'Eddie y Venom se ven obligados a tomar una decisión devastadora mientras son perseguidos.'},
+            {id: 96, tEs: 'Agatha, ¿Quién si no?', tEn: 'Agatha All Along', y_in: 2026, y_out: 2024, ty: 'series', s: 1, ep: 9, d: 360, pc: 0, cr: false, uni: 'UCM', dir: 'Jac Schaeffer', syn: 'Agatha Harkness recluta un aquelarre para recuperar sus poderes mágicos.'},
+            {id: 97, tEs: 'Daredevil: Born Again', tEn: 'Daredevil: Born Again', y_in: 2026, y_out: 2025, ty: 'series', s: 1, ep: 18, d: 800, pc: 0, cr: false, uni: 'UCM', dir: 'Varios', syn: 'Murdock y Kingpin renuevan su brutal conflicto en las calles de Nueva York.'},
+            {id: 98, tEs: 'Capitán América: Brave New World', tEn: 'Captain America: Brave New World', y_in: 2026, y_out: 2025, ty: 'movie', d: 135, pc: 2, cr: false, uni: 'UCM', dir: 'Julius Onah', syn: 'Sam Wilson asume oficialmente el rol del Capitán América en un conflicto político global.'},
+            {id: 99, tEs: 'Thunderbolts', tEn: 'Thunderbolts', y_in: 2026, y_out: 2025, ty: 'movie', d: 130, pc: 2, cr: false, uni: 'UCM', dir: 'Jake Schreier', syn: 'Un equipo de antihéroes es reunido por el gobierno para misiones peligrosas.'},
+            {id: 100, tEs: 'Ironheart', tEn: 'Ironheart', y_in: 2026, y_out: 2025, ty: 'series', s: 1, ep: 6, d: 250, pc: 0, cr: false, uni: 'UCM', dir: 'Sam Bailey', syn: 'Riri Williams desarrolla las armaduras más avanzadas desde Iron Man.'},
+            {id: 101, tEs: 'Marvel Zombis', tEn: 'Marvel Zombies', y_in: 2026, y_out: 2025, ty: 'series', s: 1, ep: 4, d: 150, pc: 0, cr: false, uni: 'UCM', dir: 'Bryan Andrews', syn: 'Los héroes de Marvel luchan por sobrevivir a un apocalipsis zombie.'},
+            {id: 102, tEs: 'Wonder Man', tEn: 'Wonder Man', y_in: 2026, y_out: 2026, ty: 'series', s: 1, ep: 8, d: 300, pc: 0, cr: false, uni: 'UCM', dir: 'Destin Daniel Cretton', syn: 'Simon Williams es arrastrado al mundo de los superhéroes desde Hollywood.'},
+            {id: 103, tEs: 'Logan', tEn: 'Logan', y_in: 2029, y_out: 2017, ty: 'movie', d: 137, pc: 0, cr: true, uni: 'FOX', dir: 'James Mangold', syn: 'En 2029, un Wolverine viejo y enfermo protege a una joven mutante (Fin cronológico de FOX).'}
+        ];
+
+        function App() {
+            const [watched, setWatched] = React.useState(() => {
+                try {
+                    const saved = localStorage.getItem('marvelTrackerProV4');
+                    return saved ? JSON.parse(saved) : [];
+                } catch {
+                    return [];
+                }
+            });
+            const [filterCritical, setFilterCritical] = React.useState(false);
+            const [sortBy, setSortBy] = React.useState('chrono'); 
+            const [activeUniverse, setActiveUniverse] = React.useState('ALL');
+            const [activeFormat, setActiveFormat] = React.useState('ALL');
+            const [searchQuery, setSearchQuery] = React.useState('');
+            const [selectedItem, setSelectedItem] = React.useState(null);
+
+            // Objetivos Clímax de la Saga
+            // Avengers: Doomsday (18 de diciembre de 2026)
+            // Avengers: Secret Wars (17 de diciembre de 2027)
+            const DOOMSDAY_TARGET = new Date('2026-12-18T00:00:00').getTime();
+            const SECRET_WARS_TARGET = new Date('2027-12-17T00:00:00').getTime();
+
+            const calculateTimeRemaining = (targetTime) => {
+                const diff = targetTime - Date.now();
+                if (diff <= 0) return { days: 0, hours: 0, minutes: 0, seconds: 0 };
+                return {
+                    days: Math.floor(diff / (1000 * 60 * 60 * 24)),
+                    hours: Math.floor((diff / (1000 * 60 * 60)) % 24),
+                    minutes: Math.floor((diff / (1000 * 60)) % 60),
+                    seconds: Math.floor((diff / 1000) % 60),
+                };
+            };
+
+            const [countdownDoomsday, setCountdownDoomsday] = React.useState(() => calculateTimeRemaining(DOOMSDAY_TARGET));
+            const [countdownSecretWars, setCountdownSecretWars] = React.useState(() => calculateTimeRemaining(SECRET_WARS_TARGET));
+
+            React.useEffect(() => {
+                const timer = setInterval(() => {
+                    setCountdownDoomsday(calculateTimeRemaining(DOOMSDAY_TARGET));
+                    setCountdownSecretWars(calculateTimeRemaining(SECRET_WARS_TARGET));
+                }, 1000);
+                return () => clearInterval(timer);
+            }, []);
+
+            React.useEffect(() => {
+                try {
+                    localStorage.setItem('marvelTrackerProV4', JSON.stringify(watched));
+                } catch (e) {
+                    console.error(e);
+                }
+            }, [watched]);
+
+            const toggleWatch = (e, id) => {
+                e.stopPropagation();
+                setWatched(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
+            };
+
+            let activeDataset = marvelData.filter(m => {
+                const passUni = activeUniverse === 'ALL' || m.uni === activeUniverse;
+                const passCrit = filterCritical ? m.cr : true;
+                const passFormat = activeFormat === 'ALL' || m.ty === activeFormat;
+                const query = searchQuery.trim().toLowerCase();
+                const passSearch = query === '' || 
+                    m.tEs.toLowerCase().includes(query) || 
+                    m.tEn.toLowerCase().includes(query) ||
+                    m.dir.toLowerCase().includes(query);
+                return passUni && passCrit && passFormat && passSearch;
+            });
+            
+            activeDataset = activeDataset.sort((a, b) => {
+                if (sortBy === 'chrono') return a.y_in - b.y_in;
+                return a.y_out - b.y_out;
+            });
+            
+            const totalHours = activeDataset.reduce((acc, curr) => acc + curr.d, 0) / 60;
+            const watchedHours = activeDataset.filter(m => watched.includes(m.id)).reduce((acc, curr) => acc + curr.d, 0) / 60;
+            const remainingHours = Math.max(0, totalHours - watchedHours);
+            const progressPct = activeDataset.length === 0 ? 0 : Math.round((activeDataset.filter(m => watched.includes(m.id)).length / activeDataset.length) * 100);
+
+            const getUniLabel = (uni) => {
+                const map = { ALL: 'Todos', UCM: 'Marvel Studios (UCM)', FOX: '20th Century Fox', SONY: 'Sony Pictures', NLINE: 'New Line', MTV: 'Marvel Television' };
+                return map[uni] || uni;
+            };
+
+            const getUniBadgeStyle = (uni) => {
+                switch(uni) {
+                    case 'UCM': return 'badge-ucm';
+                    case 'FOX': return 'badge-fox';
+                    case 'SONY': return 'badge-sony';
+                    case 'MTV': return 'badge-mtv';
+                    case 'NLINE': return 'badge-nline';
+                    default: return 'badge-nline';
+                }
+            };
+            
+            const getFormatBadgeStyle = (ty) => {
+                switch(ty) {
+                    case 'movie': return 'badge-movie';
+                    case 'series': return 'badge-series';
+                    case 'oneshot': return 'badge-oneshot';
+                }
+            };
+
+            // Paleta dinámica: Rojo Marvel por defecto (#ED1D24), Verde Esmeralda Cyberpunk (#10b981) en Doomsday
+            const accentText = filterCritical ? 'text-emerald-400' : 'text-[#ff3b44]';
+            const accentBg = filterCritical ? 'bg-emerald-500' : 'bg-[#ED1D24]';
+            const accentBorder = filterCritical ? 'border-emerald-500' : 'border-[#ED1D24]';
+            const timelineClass = filterCritical ? 'timeline-doomsday' : '';
+            const cardHoverClass = filterCritical ? 'card-floating-doom' : 'card-floating';
+
+            // Renderizador unificado para Countdown Clímax (utilizado tanto arriba como abajo de la interfaz)
+            const renderCountdown = (isBottomGoal) => (
+                <section 
+                    aria-label={isBottomGoal ? "La Meta Final: Clímax de la Saga" : "Countdown Clímax de la Saga"} 
+                    className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ${isBottomGoal ? 'mt-16 pt-10 border-t border-white/10' : 'mb-8'}`}
+                >
+                    <div className="flex items-center justify-between mb-3 px-1">
+                        <div className="flex items-center gap-2">
+                            <span className={`w-2 h-2 rounded-full ${accentBg} animate-ping`}></span>
+                            <h3 className="text-xs font-black uppercase tracking-[0.2em] text-white flex items-center gap-2">
+                                <span>{isBottomGoal ? 'La Meta: Clímax del Multiverso' : 'Countdown Clímax'}</span>
+                                <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full border ${
+                                    filterCritical 
+                                        ? 'border-emerald-500/50 text-emerald-400 bg-emerald-950/40 shadow-[0_0_10px_rgba(16,185,129,0.3)]' 
+                                        : 'border-red-500/50 text-red-400 bg-red-950/40 shadow-[0_0_10px_rgba(237,29,36,0.25)]'
+                                }`}>
+                                    {isBottomGoal ? 'DESTINO SUPREMO TRAS 103 PRODUCCIONES' : 'OBJETIVO PRINCIPAL DE LA MARATÓN'}
+                                </span>
+                            </h3>
+                        </div>
+                        <span className="text-[11px] font-mono text-zinc-400 hidden sm:flex items-center gap-1.5">
+                            <i className="fa-regular fa-clock text-zinc-500"></i> {isBottomGoal ? 'ESTRENO DEFINITIVO' : 'TIEMPO REAL EXACTO'}
+                        </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                        {/* TARJETA 1: AVENGERS DOOMSDAY */}
+                        <div className={`p-6 sm:p-7 rounded-3xl border transition-all duration-500 relative overflow-hidden backdrop-blur-xl group hover:-translate-y-1 ${
+                            filterCritical 
+                                ? 'bg-gradient-to-br from-emerald-950/50 via-[#061811]/90 to-black/95 border-emerald-400/70 shadow-[0_0_35px_rgba(16,185,129,0.3)]' 
+                                : 'bg-gradient-to-br from-zinc-900/90 via-zinc-950/95 to-black/95 border-emerald-500/40 shadow-[0_0_25px_rgba(16,185,129,0.18)] hover:border-emerald-500/70'
+                        }`}>
+                            <div className="absolute -top-16 -right-16 w-48 h-48 rounded-full bg-emerald-500/15 blur-3xl pointer-events-none group-hover:bg-emerald-500/25 transition-all"></div>
+
+                            <div className="relative z-10 flex flex-col justify-between h-full">
+                                <div className="flex items-start justify-between gap-3 mb-4">
+                                    <div>
+                                        <div className="flex items-center gap-2 mb-1.5">
+                                            <span className="badge-neon badge-doomsday text-[10px] px-2.5 py-0.5 rounded-lg uppercase flex items-center gap-1">
+                                                <i className="fa-solid fa-fire text-emerald-400"></i> FASE 6 • IMPACTO OMEGA
+                                            </span>
+                                            <span className="text-[11px] font-mono text-emerald-400/90 font-bold uppercase tracking-wider">
+                                                18 de Diciembre de 2026
+                                            </span>
+                                        </div>
+                                        <h4 className="text-2xl sm:text-3xl font-black text-white uppercase tracking-tight drop-shadow-md">
+                                            Avengers: <span className="text-emerald-400">Doomsday</span>
+                                        </h4>
+                                        <p className="text-xs text-zinc-400 mt-1 max-w-sm">
+                                            El ascenso de Victor Von Doom, la fractura definitiva de la línea temporal y el preludio al colapso total.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-4 gap-2 sm:gap-3 pt-3 border-t border-white/10 font-mono">
+                                    <div className="p-2.5 sm:p-3 rounded-2xl bg-black/60 border border-emerald-500/25 text-center shadow-inner">
+                                        <span className="text-2xl sm:text-3xl font-black text-white block tracking-tight">
+                                            {countdownDoomsday.days}
+                                        </span>
+                                        <span className="text-[9px] sm:text-[10px] font-bold text-zinc-400 uppercase tracking-widest block mt-0.5">
+                                            Días
+                                        </span>
+                                    </div>
+
+                                    <div className="p-2.5 sm:p-3 rounded-2xl bg-black/60 border border-emerald-500/25 text-center shadow-inner">
+                                        <span className="text-2xl sm:text-3xl font-black text-white block tracking-tight">
+                                            {String(countdownDoomsday.hours).padStart(2, '0')}
+                                        </span>
+                                        <span className="text-[9px] sm:text-[10px] font-bold text-zinc-400 uppercase tracking-widest block mt-0.5">
+                                            Horas
+                                        </span>
+                                    </div>
+
+                                    <div className="p-2.5 sm:p-3 rounded-2xl bg-black/60 border border-emerald-500/25 text-center shadow-inner">
+                                        <span className="text-2xl sm:text-3xl font-black text-white block tracking-tight">
+                                            {String(countdownDoomsday.minutes).padStart(2, '0')}
+                                        </span>
+                                        <span className="text-[9px] sm:text-[10px] font-bold text-zinc-400 uppercase tracking-widest block mt-0.5">
+                                            Min
+                                        </span>
+                                    </div>
+
+                                    <div className="p-2.5 sm:p-3 rounded-2xl bg-black/60 border border-emerald-500/40 text-center shadow-inner">
+                                        <span className="text-2xl sm:text-3xl font-black text-emerald-400 block tracking-tight animate-pulse">
+                                            {String(countdownDoomsday.seconds).padStart(2, '0')}
+                                        </span>
+                                        <span className="text-[9px] sm:text-[10px] font-bold text-emerald-500 uppercase tracking-widest block mt-0.5">
+                                            Seg
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* TARJETA 2: AVENGERS SECRET WARS */}
+                        <div className={`p-6 sm:p-7 rounded-3xl border transition-all duration-500 relative overflow-hidden backdrop-blur-xl group hover:-translate-y-1 ${
+                            filterCritical 
+                                ? 'bg-gradient-to-br from-emerald-950/40 via-[#071317]/90 to-black/95 border-emerald-400/60 shadow-[0_0_35px_rgba(16,185,129,0.25)]' 
+                                : 'bg-gradient-to-br from-red-950/30 via-zinc-950/95 to-black/95 border-red-500/40 shadow-[0_0_25px_rgba(237,29,36,0.18)] hover:border-red-500/70'
+                        }`}>
+                            <div className={`absolute -top-16 -right-16 w-48 h-48 rounded-full blur-3xl pointer-events-none transition-all ${
+                                filterCritical ? 'bg-emerald-500/15 group-hover:bg-emerald-500/25' : 'bg-red-600/15 group-hover:bg-red-600/25'
+                            }`}></div>
+
+                            <div className="relative z-10 flex flex-col justify-between h-full">
+                                <div className="flex items-start justify-between gap-3 mb-4">
+                                    <div>
+                                        <div className="flex items-center gap-2 mb-1.5">
+                                            <span className={`badge-neon text-[10px] px-2.5 py-0.5 rounded-lg uppercase flex items-center gap-1 ${
+                                                filterCritical ? 'badge-doomsday' : 'badge-ucm'
+                                            }`}>
+                                                <i className="fa-solid fa-sparkles"></i> FASE 6 • CLÍMAX MULTIVERSAL
+                                            </span>
+                                            <span className={`text-[11px] font-mono font-bold uppercase tracking-wider ${filterCritical ? 'text-emerald-400/90' : 'text-red-400/90'}`}>
+                                                17 de Diciembre de 2027
+                                            </span>
+                                        </div>
+                                        <h4 className="text-2xl sm:text-3xl font-black text-white uppercase tracking-tight drop-shadow-md">
+                                            Avengers: <span className={filterCritical ? 'text-emerald-400' : 'text-[#ff3b44]'}>Secret Wars</span>
+                                        </h4>
+                                        <p className="text-xs text-zinc-400 mt-1 max-w-sm">
+                                            La colisión final de universos, Battleworld y la refundación absoluta de toda la continuidad de Marvel.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-4 gap-2 sm:gap-3 pt-3 border-t border-white/10 font-mono">
+                                    <div className="p-2.5 sm:p-3 rounded-2xl bg-black/60 border border-white/10 text-center shadow-inner">
+                                        <span className="text-2xl sm:text-3xl font-black text-white block tracking-tight">
+                                            {countdownSecretWars.days}
+                                        </span>
+                                        <span className="text-[9px] sm:text-[10px] font-bold text-zinc-400 uppercase tracking-widest block mt-0.5">
+                                            Días
+                                        </span>
+                                    </div>
+
+                                    <div className="p-2.5 sm:p-3 rounded-2xl bg-black/60 border border-white/10 text-center shadow-inner">
+                                        <span className="text-2xl sm:text-3xl font-black text-white block tracking-tight">
+                                            {String(countdownSecretWars.hours).padStart(2, '0')}
+                                        </span>
+                                        <span className="text-[9px] sm:text-[10px] font-bold text-zinc-400 uppercase tracking-widest block mt-0.5">
+                                            Horas
+                                        </span>
+                                    </div>
+
+                                    <div className="p-2.5 sm:p-3 rounded-2xl bg-black/60 border border-white/10 text-center shadow-inner">
+                                        <span className="text-2xl sm:text-3xl font-black text-white block tracking-tight">
+                                            {String(countdownSecretWars.minutes).padStart(2, '0')}
+                                        </span>
+                                        <span className="text-[9px] sm:text-[10px] font-bold text-zinc-400 uppercase tracking-widest block mt-0.5">
+                                            Min
+                                        </span>
+                                    </div>
+
+                                    <div className={`p-2.5 sm:p-3 rounded-2xl bg-black/60 border text-center shadow-inner ${
+                                        filterCritical ? 'border-emerald-500/40' : 'border-red-500/40'
+                                    }`}>
+                                        <span className={`text-2xl sm:text-3xl font-black block tracking-tight animate-pulse ${
+                                            filterCritical ? 'text-emerald-400' : 'text-[#ff3b44]'
+                                        }`}>
+                                            {String(countdownSecretWars.seconds).padStart(2, '0')}
+                                        </span>
+                                        <span className={`text-[9px] sm:text-[10px] font-bold uppercase tracking-widest block mt-0.5 ${
+                                            filterCritical ? 'text-emerald-500' : 'text-red-400'
+                                        }`}>
+                                            Seg
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            );
+
+            return (
+                <div className={`min-h-screen transition-colors duration-500 ${filterCritical ? 'cinema-bg-doomsday' : 'cinema-bg'}`}>
+                    
+                    {/* Top Navbar */}
+                    <nav className="sticky top-0 z-40 border-b border-white/10 backdrop-blur-xl bg-[#050508]/85">
+                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between gap-4">
+                            <div className="flex items-center gap-3">
+                                <span className={`text-white font-black text-sm tracking-tighter px-2.5 py-1 rounded shadow-lg uppercase transition-colors duration-500 ${filterCritical ? 'bg-emerald-600' : 'bg-marvel'}`}>
+                                    MARVEL
+                                </span>
+                                <span className="text-sm font-extrabold uppercase tracking-wider text-white">
+                                    Multiverse Tracker
+                                </span>
+                            </div>
+
+                            {watched.length > 0 && (
+                                <button 
+                                    onClick={() => { if(window.confirm('¿Deseas reiniciar tu progreso?')) setWatched([]); }}
+                                    className="px-2.5 py-1 rounded-lg border border-white/10 text-zinc-400 hover:text-red-400 text-xs transition-colors"
+                                >
+                                    <i className="fa-solid fa-rotate-left mr-1"></i> Reiniciar
+                                </button>
+                            )}
+                        </div>
+                    </nav>
+
+                    {/* CABECERA HERO CINEMATOGRÁFICA (Estilo Cartel de Cine Oscuro) */}
+                    <section className="relative pt-8 pb-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+                        <div className="rounded-3xl p-6 sm:p-8 md:p-10 border border-white/10 bg-gradient-to-b from-zinc-900/90 via-zinc-950/90 to-[#07090e]/95 backdrop-blur-2xl shadow-2xl relative overflow-hidden">
+                            
+                            {/* Resplandor y halo */}
+                            <div 
+                                className="absolute -top-32 -right-32 w-96 h-96 rounded-full blur-[100px] opacity-35 transition-all duration-700 pointer-events-none"
+                                style={{ background: filterCritical ? '#10b981' : '#ED1D24' }}
+                            />
+
+                            <div className="relative z-10 flex flex-col lg:flex-row lg:items-end justify-between gap-8">
+                                <div className="max-w-2xl">
+                                    <div className="flex items-center gap-2 mb-3">
+                                        <span className={`text-[11px] font-black tracking-[0.2em] uppercase ${accentText}`}>
+                                            {filterCritical ? 'FASE APOCALÍPTICA // RUTA SECRET WARS' : 'EXPEDIENTE CRONOLÓGICO MULTIVERSAL'}
+                                        </span>
+                                        <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/5 border border-white/10 text-zinc-400">
+                                            103 PRODUCCIONES
+                                        </span>
+                                    </div>
+
+                                    <h1 className="text-3xl sm:text-5xl md:text-6xl font-black text-white tracking-tight uppercase leading-[0.95]">
+                                        Saga del <span className={`transition-colors duration-500 ${accentText}`}>Multiverso</span>
+                                    </h1>
+                                    
+                                    <p className="mt-3 text-sm sm:text-base text-zinc-300 font-medium leading-relaxed max-w-xl">
+                                        Guía cinematográfica definitiva de las eras canónicas, líneas temporales fracturadas y producciones críticas hacia el desenlace de Doomsday.
+                                    </p>
+                                </div>
+
+                                <div className="w-full lg:w-80 p-4 rounded-2xl bg-black/60 border border-white/10 backdrop-blur-md">
+                                    <div className="flex items-center justify-between text-xs mb-2">
+                                        <span className="text-zinc-400 font-semibold uppercase tracking-wider text-[11px]">Progreso Total</span>
+                                        <span className={`font-mono font-black text-base ${accentText}`}>{progressPct}%</span>
+                                    </div>
+                                    <div className="w-full h-3 bg-zinc-900 rounded-full overflow-hidden p-0.5 border border-white/10">
+                                        <div 
+                                            className={`h-full rounded-full transition-all duration-700 ${accentBg}`}
+                                            style={{ width: `${progressPct}%` }}
+                                        />
+                                    </div>
+                                    <div className="flex justify-between items-center text-[10px] text-zinc-500 font-mono mt-2">
+                                        <span>{activeDataset.filter(m => watched.includes(m.id)).length} VISTAS</span>
+                                        <span>{activeDataset.length - activeDataset.filter(m => watched.includes(m.id)).length} PENDIENTES</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* CONTADORES MASIVOS */}
+                            <div className="mt-8 pt-6 border-t border-white/10 grid grid-cols-2 lg:grid-cols-4 gap-4">
+                                <div className="p-4 sm:p-5 rounded-2xl bg-black/40 border border-white/10">
+                                    <div className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-zinc-400 mb-1">Completado</div>
+                                    <div className="flex items-baseline gap-1">
+                                        <span className="text-3xl sm:text-4xl md:text-5xl font-black font-mono tabular-nums text-white">{progressPct}</span>
+                                        <span className={`text-xl font-black ${accentText}`}>%</span>
+                                    </div>
+                                    <p className="text-[11px] text-zinc-400 mt-1 font-medium">{activeDataset.filter(m => watched.includes(m.id)).length} de {activeDataset.length} obras</p>
+                                </div>
+
+                                <div className="p-4 sm:p-5 rounded-2xl bg-black/40 border border-white/10">
+                                    <div className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-zinc-400 mb-1">Obras Vistas</div>
+                                    <div className="flex items-baseline gap-1.5">
+                                        <span className="text-3xl sm:text-4xl md:text-5xl font-black font-mono tabular-nums text-white">
+                                            {activeDataset.filter(m => watched.includes(m.id)).length}
+                                        </span>
+                                        <span className="text-lg sm:text-2xl font-mono text-zinc-500 font-bold">/ {activeDataset.length}</span>
+                                    </div>
+                                    <p className="text-[11px] text-zinc-400 mt-1 font-medium">En filtro actual</p>
+                                </div>
+
+                                <div className="p-4 sm:p-5 rounded-2xl bg-black/40 border border-white/10">
+                                    <div className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-zinc-400 mb-1">Horas Restantes</div>
+                                    <div className="flex items-baseline gap-1">
+                                        <span className="text-3xl sm:text-4xl md:text-5xl font-black font-mono tabular-nums text-white">{Math.round(remainingHours)}</span>
+                                        <span className="text-lg sm:text-xl font-bold text-zinc-400">h</span>
+                                    </div>
+                                    <p className="text-[11px] text-zinc-400 mt-1 font-medium">Total catálogo: ~{Math.round(totalHours)}h</p>
+                                </div>
+
+                                <div className="p-4 sm:p-5 rounded-2xl bg-black/40 border border-white/10">
+                                    <div className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-zinc-400 mb-1">Maratón Continuo</div>
+                                    <div className="flex items-baseline gap-1">
+                                        <span className={`text-3xl sm:text-4xl md:text-5xl font-black font-mono tabular-nums ${accentText}`}>
+                                            {(remainingHours / 24).toFixed(1)}
+                                        </span>
+                                        <span className="text-sm sm:text-base font-bold text-zinc-400">días</span>
+                                    </div>
+                                    <p className="text-[11px] text-zinc-400 mt-1 font-medium">24 horas ininterrumpidas</p>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* SECCIÓN COUNTDOWN CLÍMAX SUPERIOR: AVENGERS DOOMSDAY & SECRET WARS */}
+                    {renderCountdown(false)}
+
+                    {/* FILTROS GLASSMORPHISM */}
+                    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8 space-y-3">
+                        
+                        {/* Fila 1: Universos */}
+                        <div className="p-3 rounded-2xl bg-zinc-900/80 backdrop-blur-md border border-zinc-800 flex items-center gap-2 overflow-x-auto hide-scrollbar shadow-lg">
+                            <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider whitespace-nowrap pl-1 pr-2 flex items-center gap-1.5 shrink-0">
+                                <i className="fa-solid fa-layer-group text-zinc-500"></i> Universo:
+                            </span>
+                            <div className="flex items-center gap-1.5 shrink-0">
+                                {['ALL', 'UCM', 'FOX', 'SONY', 'MTV', 'NLINE'].map(u => (
+                                    <button 
+                                        key={u} 
+                                        onClick={() => setActiveUniverse(u)}
+                                        className={`badge-neon px-3.5 py-1.5 rounded-xl text-xs whitespace-nowrap border transition-all duration-200 ${
+                                            activeUniverse === u 
+                                                ? `${accentBg} text-white border-transparent shadow-lg font-black` 
+                                                : 'bg-black/40 text-zinc-400 border-white/10 hover:border-white/25 hover:text-white'
+                                        }`}
+                                    >
+                                        {u === 'ALL' ? 'Todos los Universos' : getUniLabel(u)}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Fila 2: Formatos */}
+                        <div className="p-3 rounded-2xl bg-zinc-900/80 backdrop-blur-md border border-zinc-800 flex items-center gap-2 overflow-x-auto hide-scrollbar shadow-lg">
+                            <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider whitespace-nowrap pl-1 pr-2 flex items-center gap-1.5 shrink-0">
+                                <i className="fa-solid fa-film text-zinc-500"></i> Formato:
+                            </span>
+                            <div className="flex items-center gap-1.5 shrink-0">
+                                {[
+                                    { key: 'ALL', label: 'Todos los Formatos', icon: null },
+                                    { key: 'movie', label: 'Películas', icon: 'fa-film' },
+                                    { key: 'series', label: 'Series', icon: 'fa-tv' },
+                                    { key: 'oneshot', label: 'One-Shots', icon: 'fa-bolt' }
+                                ].map(fmt => (
+                                    <button 
+                                        key={fmt.key}
+                                        onClick={() => setActiveFormat(fmt.key)}
+                                        className={`badge-neon px-3.5 py-1.5 rounded-xl text-xs whitespace-nowrap border transition-all duration-200 flex items-center gap-1.5 ${
+                                            activeFormat === fmt.key
+                                                ? `${accentBg} text-white border-transparent shadow-lg font-black`
+                                                : 'bg-black/40 text-zinc-400 border-white/10 hover:border-white/25 hover:text-white'
+                                        }`}
+                                    >
+                                        {fmt.icon && <i className={`fa-solid ${fmt.icon} text-xs`}></i>}
+                                        <span>{fmt.label}</span>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Fila 3: Buscador + Orden + Doomsday */}
+                        <div className="p-3 rounded-2xl bg-zinc-900/80 backdrop-blur-md border border-zinc-800 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 shadow-lg">
+                            <div className="relative flex-1 max-w-md">
+                                <i className="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500 text-xs"></i>
+                                <input
+                                    type="text"
+                                    placeholder="Buscar por título (ej. Deadpool, Loki) o director..."
+                                    value={searchQuery}
+                                    onChange={e => setSearchQuery(e.target.value)}
+                                    className="w-full bg-black/60 border border-white/10 rounded-xl pl-9 pr-8 py-2 text-xs text-white placeholder:text-zinc-500 focus:outline-none focus:border-white/30"
+                                />
+                                {searchQuery && (
+                                    <button onClick={() => setSearchQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-white text-xs">
+                                        <i className="fa-solid fa-xmark"></i>
+                                    </button>
+                                )}
+                            </div>
+
+                            <div className="flex flex-wrap sm:flex-nowrap items-center gap-2.5">
+                                <div className="flex bg-black/60 p-1 rounded-xl border border-white/10 shrink-0">
+                                    <button 
+                                        onClick={() => setSortBy('chrono')}
+                                        className={`px-3 py-1.5 text-xs font-bold uppercase rounded-lg transition-all ${sortBy === 'chrono' ? 'bg-zinc-800 text-white shadow-sm' : 'text-zinc-400 hover:text-white'}`}
+                                    >
+                                        Por Sucesos
+                                    </button>
+                                    <button 
+                                        onClick={() => setSortBy('release')}
+                                        className={`px-3 py-1.5 text-xs font-bold uppercase rounded-lg transition-all ${sortBy === 'release' ? 'bg-zinc-800 text-white shadow-sm' : 'text-zinc-400 hover:text-white'}`}
+                                    >
+                                        Por Estreno
+                                    </button>
+                                </div>
+
+                                <button 
+                                    onClick={() => setFilterCritical(!filterCritical)}
+                                    className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all duration-300 flex items-center justify-center gap-2 border shrink-0 ${
+                                        filterCritical 
+                                            ? 'bg-emerald-500 text-zinc-950 border-emerald-400 shadow-[0_0_24px_rgba(16,185,129,0.55)] scale-[1.02]' 
+                                            : 'bg-black/80 text-zinc-400 border-emerald-900/60 hover:border-emerald-500/50 hover:text-emerald-400'
+                                    }`}
+                                >
+                                    <i className={`fa-solid fa-bolt ${filterCritical ? 'text-zinc-950' : 'text-emerald-500'}`}></i>
+                                    <span>{filterCritical ? 'Ruta Doomsday Activa' : 'Activar Ruta Doomsday'}</span>
+                                </button>
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* GRID DE PRODUCCIONES */}
+                    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-32">
+                        <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-7 relative ${timelineClass}`}>
+                            {activeDataset.map((item) => {
+                                const isWatched = watched.includes(item.id);
+                                const isCritical = item.cr;
+                                let customBorder = 'border-zinc-800';
+                                if (filterCritical && isCritical && !isWatched) {
+                                    customBorder = 'border-emerald-500/70 shadow-[0_0_20px_rgba(16,185,129,0.25)]';
+                                } else if (isCritical && !isWatched) {
+                                    customBorder = 'border-emerald-600/40';
+                                }
+
+                                return (
+                                    <div 
+                                        key={item.id} 
+                                        onClick={() => setSelectedItem(item)}
+                                        className={`timeline-card card-floating group flex flex-col p-5 rounded-2xl cursor-pointer border ${customBorder} ${cardHoverClass} ${
+                                            isWatched ? 'bg-zinc-950/60 opacity-50 hover:opacity-85' : 'bg-zinc-900/80 backdrop-blur-md'
+                                        }`}
+                                    >
+                                        <div className="flex justify-between items-start mb-3.5">
+                                            <div className="flex items-center gap-2">
+                                                <div className="bg-black/60 font-mono text-[11px] font-bold px-2 py-0.5 rounded-lg text-zinc-300 border border-white/10">
+                                                    {sortBy === 'chrono' ? (item.y_in === 1000 ? 'AÑO: ORIGEN' : `AÑO: ${item.y_in}`) : `ESTRENO: ${item.y_out}`}
+                                                </div>
+                                                {item.cr && (
+                                                    <span className="badge-neon badge-doomsday text-[10px] px-2 py-0.5 rounded-lg uppercase flex items-center gap-1">
+                                                        <i className="fa-solid fa-fire text-[9px]"></i>DOOM
+                                                    </span>
+                                                )}
+                                            </div>
+
+                                            <button 
+                                                onClick={(e) => toggleWatch(e, item.id)} 
+                                                className={`w-7 h-7 rounded-lg flex items-center justify-center border transition-all ${
+                                                    isWatched 
+                                                        ? `${accentBg} ${accentBorder} text-white shadow-lg` 
+                                                        : 'border-zinc-700 bg-black/50 text-transparent hover:text-zinc-400 hover:border-zinc-500'
+                                                }`}
+                                            >
+                                                <i className="fa-solid fa-check text-xs"></i>
+                                            </button>
+                                        </div>
+                                        
+                                        <div className="flex-1 flex flex-col justify-between">
+                                            <div>
+                                                <h3 className={`font-black text-lg leading-tight mb-1 transition-colors ${isWatched ? 'line-through text-zinc-500' : 'text-white'}`}>
+                                                    {item.tEs}
+                                                </h3>
+                                                <div className="flex items-center gap-2 mb-3">
+                                                    <span className={`badge-neon text-[10px] px-2 py-0.5 rounded-md uppercase ${getUniBadgeStyle(item.uni)}`}>
+                                                        {item.uni}
+                                                    </span>
+                                                    <h4 className="text-xs text-zinc-400 italic truncate max-w-[200px]">{item.tEn}</h4>
+                                                </div>
+                                            </div>
+                                            
+                                            <div className="pt-2.5 border-t border-white/5 flex flex-wrap items-center gap-2 text-[11px] font-semibold text-zinc-400">
+                                                <span className={`badge-neon px-2 py-0.5 rounded-md flex items-center gap-1 ${getFormatBadgeStyle(item.ty)}`}>
+                                                    {item.ty === 'movie' && <i className="fa-solid fa-film text-xs mr-1"></i>}
+                                                    {item.ty === 'series' && <i className="fa-solid fa-tv text-xs mr-1"></i>}
+                                                    {item.ty === 'oneshot' && <i className="fa-solid fa-bolt text-xs mr-1"></i>}
+                                                    <span className="capitalize">{item.ty === 'oneshot' ? 'One-Shot' : item.ty === 'movie' ? 'Película' : `Serie (${item.s}T)`}</span>
+                                                </span>
+
+                                                <span className="flex items-center gap-1 bg-black/50 px-2 py-0.5 rounded-md border border-white/10 font-mono text-zinc-300">
+                                                    <i className="fa-regular fa-clock text-zinc-500 mr-0.5"></i>
+                                                    {item.d > 1000 ? Math.round(item.d/60) + 'h' : item.d + 'm'}
+                                                </span>
+
+                                                {item.pc > 0 && (
+                                                    <span className={`flex items-center gap-1 px-2 py-0.5 rounded-md font-mono ${accentText} bg-black/50 border border-white/10`}>
+                                                        <i className="fa-solid fa-ticket mr-0.5"></i>
+                                                        {item.pc} {item.pc === 1 ? 'Post' : 'Posts'}
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+
+                        {/* SECCIÓN COUNTDOWN CLÍMAX INFERIOR: LA META TRAS LAS 103 PRODUCCIONES */}
+                        {renderCountdown(true)}
+                    </main>
+
+                    {/* MODAL EXPEDIENTE S.H.I.E.L.D. */}
+                    {selectedItem && (
+                        <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4 backdrop-blur-2xl" onClick={() => setSelectedItem(null)}>
+                            <div 
+                                className={`bg-[#07090d] border ${
+                                    selectedItem.cr 
+                                        ? 'border-emerald-500/70 shadow-[0_0_50px_rgba(16,185,129,0.3)]' 
+                                        : 'border-red-500/50 shadow-[0_0_50px_rgba(237,29,36,0.25)]'
+                                } rounded-3xl max-w-xl w-full relative modal-shield-enter overflow-hidden`} 
+                                onClick={e => e.stopPropagation()}
+                            >
+                                <div className="absolute inset-0 shield-scanlines pointer-events-none"></div>
+
+                                <div className="bg-black/90 px-5 py-4 border-b border-white/10 flex items-center justify-between relative z-20">
+                                    <div className="flex items-center gap-3">
+                                        <div className={`p-2 rounded-xl border ${selectedItem.cr ? 'border-emerald-500/40 bg-emerald-950/40 text-emerald-400' : 'border-red-500/40 bg-red-950/40 text-red-400'}`}>
+                                            <i className="fa-solid fa-shield-halved text-lg"></i>
+                                        </div>
+                                        <div>
+                                            <span className="font-mono text-[10px] tracking-[0.2em] uppercase font-black text-zinc-400 block">
+                                                S.H.I.E.L.D. // EXPEDIENTE MULTIVERSAL CLASIFICADO
+                                            </span>
+                                            <span className="font-mono text-[10px] text-zinc-500">
+                                                CLEARANCE: LEVEL 9 // ARCHIVO ID-MRVL-{String(selectedItem.id).padStart(3, '0')}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <button onClick={() => setSelectedItem(null)} className="w-8 h-8 rounded-xl bg-white/5 hover:bg-white/15 text-zinc-400 hover:text-white flex items-center justify-center">
+                                        <i className="fa-solid fa-xmark"></i>
+                                    </button>
+                                </div>
+                                
+                                <div className="p-6 relative z-20 space-y-6">
+                                    <div className="flex items-center justify-between gap-4">
+                                        <div className="flex items-center gap-2">
+                                            <span className={`badge-neon text-xs px-3 py-1 rounded-lg uppercase ${getUniBadgeStyle(selectedItem.uni)}`}>
+                                                {getUniLabel(selectedItem.uni)}
+                                            </span>
+                                            <span className={`badge-neon text-xs px-3 py-1 rounded-lg uppercase ${getFormatBadgeStyle(selectedItem.ty)}`}>
+                                                {selectedItem.ty === 'movie' ? 'Largometraje' : selectedItem.ty === 'series' ? 'Serie' : 'Cortometraje'}
+                                            </span>
+                                        </div>
+
+                                        {selectedItem.cr ? (
+                                            <span className="badge-neon badge-doomsday text-xs px-3 py-1 rounded-lg font-black uppercase flex items-center gap-1.5 shadow-[0_0_15px_rgba(16,185,129,0.4)]">
+                                                <i className="fa-solid fa-fire"></i> RUTA DOOMSDAY
+                                            </span>
+                                        ) : (
+                                            <span className="px-2.5 py-1 rounded-lg bg-zinc-800 text-zinc-400 text-[10px] font-mono border border-zinc-700">CANON ALTERNO</span>
+                                        )}
+                                    </div>
+                                    
+                                    <div>
+                                        <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight leading-tight">{selectedItem.tEs}</h2>
+                                        <h3 className="text-sm text-zinc-400 italic font-medium mt-1">{selectedItem.tEn}</h3>
+                                    </div>
+                                    
+                                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 bg-black/60 p-3.5 rounded-2xl border border-white/10 font-mono text-xs">
+                                        <div className="p-2.5 bg-zinc-950/80 rounded-xl border border-white/5">
+                                            <span className="text-[10px] text-zinc-500 block uppercase">Año Canónico</span>
+                                            <span className="font-bold text-white text-sm">{selectedItem.y_in === 1000 ? 'Origen' : selectedItem.y_in}</span>
+                                        </div>
+                                        <div className="p-2.5 bg-zinc-950/80 rounded-xl border border-white/5">
+                                            <span className="text-[10px] text-zinc-500 block uppercase">Estreno en Cines</span>
+                                            <span className="font-bold text-white text-sm">{selectedItem.y_out}</span>
+                                        </div>
+                                        <div className="p-2.5 bg-zinc-950/80 rounded-xl border border-white/5">
+                                            <span className="text-[10px] text-zinc-500 block uppercase">Duración</span>
+                                            <span className="font-bold text-white text-sm">{selectedItem.d > 1000 ? Math.round(selectedItem.d/60) + ' hrs' : selectedItem.d + ' min'}</span>
+                                        </div>
+                                        <div className="p-2.5 bg-zinc-950/80 rounded-xl border border-white/5">
+                                            <span className="text-[10px] text-zinc-500 block uppercase">Post-Créditos</span>
+                                            <span className={`font-bold text-sm ${selectedItem.pc > 0 ? accentText : 'text-zinc-400'}`}>{selectedItem.pc}</span>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-center gap-2 text-xs bg-black/50 px-4 py-3 rounded-2xl border border-white/5">
+                                        <span className="font-mono text-zinc-500 uppercase tracking-wider text-[11px]">Dirección / Creación:</span>
+                                        <span className="font-bold text-zinc-100">{selectedItem.dir}</span>
+                                    </div>
+                                    
+                                    <div className="space-y-1.5">
+                                        <div className="flex items-center justify-between text-[10px] uppercase font-mono font-bold tracking-widest text-zinc-400">
+                                            <span>DESCRIPCIÓN DE MISIÓN / SINOPSIS</span>
+                                            <span className="text-zinc-600">CONFIDENCIAL // NIVEL 9</span>
+                                        </div>
+                                        <div className="p-4 rounded-2xl bg-black/60 border border-white/10 text-sm text-zinc-300 leading-relaxed font-sans">
+                                            {selectedItem.syn}
+                                        </div>
+                                    </div>
+
+                                    <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 border-t border-white/10">
+                                        <button
+                                            onClick={(e) => toggleWatch(e, selectedItem.id)}
+                                            className={`px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all ${
+                                                watched.includes(selectedItem.id)
+                                                    ? 'bg-zinc-800 text-zinc-300 border border-white/10 hover:bg-zinc-700'
+                                                    : `${accentBg} text-white shadow-lg`
+                                            }`}
+                                        >
+                                            <i className="fa-solid fa-check"></i>
+                                            <span>{watched.includes(selectedItem.id) ? 'Marcado como Visto (Desmarcar)' : 'Marcar como Visto'}</span>
+                                        </button>
+
+                                        <button 
+                                            onClick={() => setSelectedItem(null)} 
+                                            className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-semibold"
+                                        >
+                                            Cerrar Expediente
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

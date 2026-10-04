@@ -1,0 +1,6 @@
+{
+  "name": "Marvel Multiverse Tracker - Cronología Cinematográfica",
+  "description": "Guía cronológica definitiva y expediente clasificado del Multiverso Marvel con 103 producciones, Ruta Doomsday y analíticas de visualización.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
