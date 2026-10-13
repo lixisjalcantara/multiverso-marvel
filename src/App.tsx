@@ -8,7 +8,6 @@ import {
   Clock, 
   Ticket, 
   X, 
-  Download, 
   Flame, 
   RotateCcw,
   Sparkles,
@@ -16,16 +15,16 @@ import {
   ChevronRight,
   Shield,
   Layers,
-  FileCode,
   CheckCircle2,
   SlidersHorizontal,
   Compass,
-  Radio
+  Radio,
+  Globe
 } from 'lucide-react';
 import { marvelData, MarvelProduction } from './data/marvelData';
 
-type UniverseType = 'ALL' | 'UCM' | 'FOX' | 'SONY' | 'MTV' | 'NLINE';
-type FormatType = 'ALL' | 'movie' | 'series' | 'oneshot';
+type UniverseType = 'UCM' | 'FOX' | 'SONY' | 'MTV';
+type FormatType = 'movie' | 'series' | 'oneshot';
 type SortOrderType = 'chrono' | 'release';
 
 export default function App() {
@@ -41,12 +40,15 @@ export default function App() {
 
   const [filterCritical, setFilterCritical] = useState<boolean>(false);
   const [sortBy, setSortBy] = useState<SortOrderType>('chrono');
-  const [activeUniverse, setActiveUniverse] = useState<UniverseType>('ALL');
-  const [activeFormat, setActiveFormat] = useState<FormatType>('ALL');
+  
+  // Filtros de Multiselección (Arrays [])
+  // Si están vacíos, se interpreta como "Mostrar Todos"
+  const [activeUniverse, setActiveUniverse] = useState<string[]>([]);
+  const [activeFormat, setActiveFormat] = useState<string[]>([]);
+  const [activeEarth, setActiveEarth] = useState<string[]>([]);
+  
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedItem, setSelectedItem] = useState<MarvelProduction | null>(null);
-  const [showExportModal, setShowExportModal] = useState<boolean>(false);
-  const [copiedNotification, setCopiedNotification] = useState<boolean>(false);
 
   // Objetivos Clímax de la Saga
   // Avengers: Doomsday (18 de diciembre de 2026)
@@ -93,26 +95,56 @@ export default function App() {
     );
   };
 
-  // Filtrado y ordenación combinados
+  // Toggle helpers para multiselección
+  const toggleUniverse = (uni: string) => {
+    setActiveUniverse(prev => 
+      prev.includes(uni) ? prev.filter(u => u !== uni) : [...prev, uni]
+    );
+  };
+
+  const toggleFormat = (fmt: string) => {
+    setActiveFormat(prev => 
+      prev.includes(fmt) ? prev.filter(f => f !== fmt) : [...prev, fmt]
+    );
+  };
+
+  const toggleEarth = (earth: string) => {
+    setActiveEarth(prev => 
+      prev.includes(earth) ? prev.filter(e => e !== earth) : [...prev, earth]
+    );
+  };
+
+  const resetAllFilters = () => {
+    setActiveUniverse([]);
+    setActiveFormat([]);
+    setActiveEarth([]);
+    setSearchQuery('');
+    setFilterCritical(false);
+  };
+
+  // Filtrado y ordenación combinados (AND / OR)
   const activeDataset = useMemo(() => {
     const filtered = marvelData.filter(m => {
-      const passUni = activeUniverse === 'ALL' || m.uni === activeUniverse;
+      // Si el array está vacío, muestra todos
+      const passUni = activeUniverse.length === 0 || activeUniverse.includes(m.uni);
       const passCrit = filterCritical ? m.cr : true;
-      const passFormat = activeFormat === 'ALL' || m.ty === activeFormat;
+      const passFormat = activeFormat.length === 0 || activeFormat.includes(m.ty);
+      const passEarth = activeEarth.length === 0 || activeEarth.includes(m.earth);
+      
       const query = searchQuery.trim().toLowerCase();
       const passSearch = query === '' || 
         m.tEs.toLowerCase().includes(query) ||
         m.tEn.toLowerCase().includes(query) ||
-        m.dir.toLowerCase().includes(query);
+        m.earth.toLowerCase().includes(query);
 
-      return passUni && passCrit && passFormat && passSearch;
+      return passUni && passCrit && passFormat && passEarth && passSearch;
     });
 
     return [...filtered].sort((a, b) => {
       if (sortBy === 'chrono') return a.y_in - b.y_in;
       return a.y_out - b.y_out;
     });
-  }, [activeUniverse, filterCritical, activeFormat, searchQuery, sortBy]);
+  }, [activeUniverse, filterCritical, activeFormat, activeEarth, searchQuery, sortBy]);
 
   // Métricas matemáticas
   const analytics = useMemo(() => {
@@ -200,8 +232,7 @@ export default function App() {
       case 'FOX': return 'badge-fox';
       case 'SONY': return 'badge-sony';
       case 'MTV': return 'badge-mtv';
-      case 'NLINE': return 'badge-nline';
-      default: return 'badge-nline';
+      default: return 'badge-ucm';
     }
   };
 
@@ -213,19 +244,44 @@ export default function App() {
     }
   };
 
-  const getUniverseName = (uni: UniverseType | MarvelProduction['uni']) => {
+  const getUniverseName = (uni: string) => {
     const map: Record<string, string> = {
-      ALL: 'Todos los Universos',
       UCM: 'Marvel Studios (UCM)',
       FOX: '20th Century Fox',
       SONY: 'Sony Spider-Verse',
-      MTV: 'Marvel Television',
-      NLINE: 'New Line Cinema'
+      MTV: 'Marvel Television'
     };
     return map[uni] || uni;
   };
 
-  // Renderizador unificado para Countdown Clímax (utilizado tanto arriba como abajo de la interfaz)
+  // Listas de filtros fijos
+  const studioList: { key: UniverseType; label: string }[] = [
+    { key: 'UCM', label: 'UCM' },
+    { key: 'FOX', label: 'FOX' },
+    { key: 'SONY', label: 'SONY' },
+    { key: 'MTV', label: 'MTV' }
+  ];
+
+  const formatList: { key: FormatType; label: string; icon: React.ElementType }[] = [
+    { key: 'movie', label: 'Películas', icon: Film },
+    { key: 'series', label: 'Series', icon: Tv },
+    { key: 'oneshot', label: 'One-Shots', icon: Zap }
+  ];
+
+  const earthList: string[] = [
+    '616', 
+    '10005', 
+    '96283', 
+    '120703', 
+    '688', 
+    '701306', 
+    '58460', 
+    '121698',
+    'Fuera del Tiempo',
+    'Multiverso'
+  ];
+
+  // Renderizador unificado para Countdown Clímax (arriba y abajo de la interfaz)
   const renderCountdownSection = (isBottomGoal: boolean) => (
     <section 
       aria-label={isBottomGoal ? "La Meta Final: Clímax de la Saga" : "Countdown Clímax de la Saga"} 
@@ -241,7 +297,7 @@ export default function App() {
                 ? 'border-emerald-500/50 text-emerald-400 bg-emerald-950/40 shadow-[0_0_10px_rgba(16,185,129,0.3)]' 
                 : 'border-red-500/50 text-red-400 bg-red-950/40 shadow-[0_0_10px_rgba(237,29,36,0.25)]'
             }`}>
-              {isBottomGoal ? 'DESTINO SUPREMO TRAS 103 PRODUCCIONES' : 'OBJETIVO PRINCIPAL DE LA MARATÓN'}
+              {isBottomGoal ? 'DESTINO SUPREMO TRAS 109 PRODUCCIONES' : 'OBJETIVO PRINCIPAL DE LA MARATÓN'}
             </span>
           </h3>
         </div>
@@ -431,22 +487,12 @@ export default function App() {
                 Multiverse Tracker
               </span>
               <span className="hidden md:inline-block text-[10px] font-mono px-2 py-0.5 rounded-full border border-white/10 text-zinc-400 bg-white/5">
-                OFICIAL SAGA
+                TIERRAS & CRONOLOGÍA
               </span>
             </div>
           </div>
 
           <div className="flex items-center gap-2.5">
-            {/* Botón Exportar Standalone HTML */}
-            <button
-              onClick={() => setShowExportModal(true)}
-              className="px-3 py-1.5 rounded-lg border border-white/15 bg-white/5 hover:bg-white/10 text-zinc-300 hover:text-white text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm"
-              title="Descargar versión portable HTML único"
-            >
-              <FileCode className="w-3.5 h-3.5 text-zinc-400" />
-              <span className="hidden sm:inline">HTML Único</span>
-            </button>
-
             {/* Reiniciar Progreso */}
             {watched.length > 0 && (
               <button
@@ -459,14 +505,14 @@ export default function App() {
                 title="Reiniciar progreso"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Reiniciar</span>
+                <span className="hidden sm:inline">Reiniciar Vistas</span>
               </button>
             )}
           </div>
         </div>
       </nav>
 
-      {/* CABECERA HERO CINEMATOGRÁFICA (Estilo Cartel de Cine Oscuro / Streaming Premium) */}
+      {/* CABECERA HERO CINEMATOGRÁFICA */}
       <section className="relative pt-8 pb-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto overflow-hidden">
         
         {/* Banner Superior Estilo Cartel */}
@@ -495,7 +541,7 @@ export default function App() {
                   {theme.isDoomsday ? 'FASE APOCALÍPTICA // RUTA SECRET WARS' : 'EXPEDIENTE CRONOLÓGICO MULTIVERSAL'}
                 </span>
                 <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/5 border border-white/10 text-zinc-400">
-                  103 PRODUCCIONES
+                  109 PRODUCCIONES
                 </span>
               </div>
 
@@ -504,7 +550,7 @@ export default function App() {
               </h1>
               
               <p className="mt-3 text-sm sm:text-base text-zinc-300 font-medium leading-relaxed max-w-xl">
-                Guía cinematográfica definitiva de las eras canónicas, líneas temporales fracturadas y producciones críticas hacia el desenlace de Doomsday.
+                Guía cinematográfica definitiva de las eras canónicas, líneas temporales fracturadas (Earth-616, Earth-10005, Earth-96283) y producciones críticas hacia el desenlace de Doomsday.
               </p>
             </div>
 
@@ -529,7 +575,7 @@ export default function App() {
             </div>
           </div>
 
-          {/* CONTADORES MASIVOS (Números Gigantes, Estilo Dashboard de Control) */}
+          {/* CONTADORES MASIVOS */}
           <div className="mt-8 pt-6 border-t border-white/10 grid grid-cols-2 lg:grid-cols-4 gap-4">
             
             {/* Tarjeta 1: Progreso */}
@@ -608,59 +654,74 @@ export default function App() {
       {/* SECCIÓN COUNTDOWN CLÍMAX SUPERIOR: AVENGERS DOOMSDAY & SECRET WARS */}
       {renderCountdownSection(false)}
 
-      {/* CONTROLES Y FILTROS GLASSMORPHISM */}
+      {/* CONTROLES Y FILTROS GLASSMORPHISM (3 BARRAS INDEPENDIENTES) */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8 space-y-3">
         
-        {/* FILTRO 1: UNIVERSOS (Insignias Holográficas / Segmented Pills) */}
+        {/* BARRA 1: ESTUDIO (UCM, FOX, SONY, MTV) */}
         <div className="p-3 rounded-2xl bg-zinc-900/80 backdrop-blur-md border border-zinc-800 flex items-center gap-2 overflow-x-auto hide-scrollbar shadow-lg">
           <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider whitespace-nowrap pl-1 pr-2 flex items-center gap-1.5 shrink-0">
-            <Layers className="w-3.5 h-3.5 text-zinc-500" /> Universo:
+            <Layers className="w-3.5 h-3.5 text-zinc-500" /> Estudio:
           </span>
           <div className="flex items-center gap-1.5 shrink-0">
-            {(['ALL', 'UCM', 'FOX', 'SONY', 'MTV', 'NLINE'] as UniverseType[]).map(uni => {
-              const isActive = activeUniverse === uni;
+            <button
+              onClick={() => setActiveUniverse([])}
+              className={`px-3 py-1.5 rounded-xl text-xs whitespace-nowrap border transition-all duration-200 ${
+                activeUniverse.length === 0
+                  ? `${theme.bgAccent} text-white border-transparent shadow-[0_0_12px_${theme.primaryHex}] font-black`
+                  : 'bg-black/40 text-zinc-400 border-white/10 hover:border-white/25 hover:text-white font-medium'
+              }`}
+            >
+              Todos los Estudios
+            </button>
+            {studioList.map(({ key, label }) => {
+              const isSelected = activeUniverse.includes(key);
               return (
                 <button
-                  key={uni}
-                  onClick={() => setActiveUniverse(uni)}
+                  key={key}
+                  onClick={() => toggleUniverse(key)}
                   className={`badge-neon px-3.5 py-1.5 rounded-xl text-xs whitespace-nowrap border transition-all duration-200 ${
-                    isActive
+                    isSelected
                       ? `${theme.bgAccent} text-white border-transparent shadow-[0_0_14px_${theme.primaryHex}] font-black`
                       : 'bg-black/40 text-zinc-400 border-white/10 hover:border-white/25 hover:text-white'
                   }`}
                 >
-                  {uni === 'ALL' ? 'Todos los Universos' : getUniverseName(uni)}
+                  {label}
                 </button>
               );
             })}
           </div>
         </div>
 
-        {/* FILTRO 2: FORMATO (Películas, Series, One-Shots) */}
+        {/* BARRA 2: FORMATO (Películas, Series, One-Shots) */}
         <div className="p-3 rounded-2xl bg-zinc-900/80 backdrop-blur-md border border-zinc-800 flex items-center gap-2 overflow-x-auto hide-scrollbar shadow-lg">
           <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider whitespace-nowrap pl-1 pr-2 flex items-center gap-1.5 shrink-0">
             <Film className="w-3.5 h-3.5 text-zinc-500" /> Formato:
           </span>
           <div className="flex items-center gap-1.5 shrink-0">
-            {[
-              { key: 'ALL', label: 'Todos los Formatos', icon: null },
-              { key: 'movie', label: 'Películas', icon: Film },
-              { key: 'series', label: 'Series', icon: Tv },
-              { key: 'oneshot', label: 'One-Shots', icon: Zap }
-            ].map(fmt => {
-              const isActive = activeFormat === fmt.key;
+            <button
+              onClick={() => setActiveFormat([])}
+              className={`px-3 py-1.5 rounded-xl text-xs whitespace-nowrap border transition-all duration-200 ${
+                activeFormat.length === 0
+                  ? `${theme.bgAccent} text-white border-transparent shadow-[0_0_12px_${theme.primaryHex}] font-black`
+                  : 'bg-black/40 text-zinc-400 border-white/10 hover:border-white/25 hover:text-white font-medium'
+              }`}
+            >
+              Todos los Formatos
+            </button>
+            {formatList.map(fmt => {
+              const isSelected = activeFormat.includes(fmt.key);
               const IconComponent = fmt.icon;
               return (
                 <button
                   key={fmt.key}
-                  onClick={() => setActiveFormat(fmt.key as FormatType)}
+                  onClick={() => toggleFormat(fmt.key)}
                   className={`badge-neon px-3.5 py-1.5 rounded-xl text-xs whitespace-nowrap border transition-all duration-200 flex items-center gap-1.5 ${
-                    isActive
+                    isSelected
                       ? `${theme.bgAccent} text-white border-transparent shadow-[0_0_14px_${theme.primaryHex}] font-black`
                       : 'bg-black/40 text-zinc-400 border-white/10 hover:border-white/25 hover:text-white'
                   }`}
                 >
-                  {IconComponent && <IconComponent className="w-3.5 h-3.5" />}
+                  <IconComponent className="w-3.5 h-3.5" />
                   <span>{fmt.label}</span>
                 </button>
               );
@@ -668,7 +729,42 @@ export default function App() {
           </div>
         </div>
 
-        {/* FILTRO 3: BUSCADOR + ORDEN + BOTÓN RUTA DOOMSDAY */}
+        {/* BARRA 3: LÍNEA TEMPORAL / EARTH (616, 10005, 96283, 120703, 688, 701306, 58460, 121698...) */}
+        <div className="p-3 rounded-2xl bg-zinc-900/80 backdrop-blur-md border border-zinc-800 flex items-center gap-2 overflow-x-auto hide-scrollbar shadow-lg">
+          <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider whitespace-nowrap pl-1 pr-2 flex items-center gap-1.5 shrink-0">
+            <Globe className="w-3.5 h-3.5 text-zinc-500" /> Línea Temporal:
+          </span>
+          <div className="flex items-center gap-1.5 shrink-0">
+            <button
+              onClick={() => setActiveEarth([])}
+              className={`px-3 py-1.5 rounded-xl text-xs whitespace-nowrap border transition-all duration-200 ${
+                activeEarth.length === 0
+                  ? `${theme.bgAccent} text-white border-transparent shadow-[0_0_12px_${theme.primaryHex}] font-black`
+                  : 'bg-black/40 text-zinc-400 border-white/10 hover:border-white/25 hover:text-white font-medium'
+              }`}
+            >
+              Todas las Tierras
+            </button>
+            {earthList.map(earth => {
+              const isSelected = activeEarth.includes(earth);
+              return (
+                <button
+                  key={earth}
+                  onClick={() => toggleEarth(earth)}
+                  className={`badge-neon px-3 py-1.5 rounded-xl text-xs whitespace-nowrap border transition-all duration-200 font-mono ${
+                    isSelected
+                      ? `${theme.bgAccent} text-white border-transparent shadow-[0_0_14px_${theme.primaryHex}] font-black`
+                      : 'bg-black/40 text-zinc-400 border-white/10 hover:border-white/25 hover:text-white'
+                  }`}
+                >
+                  {earth === 'Fuera del Tiempo' || earth === 'Multiverso' ? earth : `Earth-${earth}`}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* BARRA 4: BUSCADOR + ORDEN + BOTÓN RUTA DOOMSDAY */}
         <div className="p-3 rounded-2xl bg-zinc-900/80 backdrop-blur-md border border-zinc-800 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 shadow-lg">
           
           {/* Buscador Rápido */}
@@ -676,10 +772,10 @@ export default function App() {
             <Search className="w-3.5 h-3.5 absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500" />
             <input
               type="text"
-              placeholder="Buscar título (ej. Deadpool, Loki) o director..."
+              placeholder="Buscar título (ej. Deadpool, Loki) o tierra (616, 10005)..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-black/60 border border-white/10 rounded-xl pl-9 pr-8 py-2 text-xs text-white placeholder:text-zinc-500 focus:outline-none focus:border-white/30 transition-all"
+              className="w-full bg-black/60 border border-white/10 rounded-xl pl-9 pr-8 py-2 text-xs text-white placeholder:text-zinc-500 focus:outline-none focus:border-white/30 transition-all font-sans"
             />
             {searchQuery && (
               <button 
@@ -733,9 +829,17 @@ export default function App() {
       </section>
 
       {/* RESULTADOS & CONTADOR DE PRODUCCIONES */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between mb-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-wrap items-center justify-between gap-3 mb-6">
         <div className="text-xs text-zinc-400 font-medium flex items-center gap-2">
-          <span>Mostrando <strong className="text-white font-mono-numbers">{activeDataset.length}</strong> producciones</span>
+          <span>Mostrando <strong className="text-white font-mono-numbers">{activeDataset.length}</strong> de {marvelData.length} producciones</span>
+          {(activeUniverse.length > 0 || activeFormat.length > 0 || activeEarth.length > 0 || filterCritical || searchQuery) && (
+            <button
+              onClick={resetAllFilters}
+              className="text-xs text-zinc-400 hover:text-white underline underline-offset-2 ml-2"
+            >
+              Limpiar filtros
+            </button>
+          )}
           {filterCritical && (
             <span className="text-emerald-400 text-[11px] font-bold flex items-center gap-1">
               • Canon Crítico para Secret Wars & Doomsday
@@ -747,8 +851,8 @@ export default function App() {
         </div>
       </div>
 
-      {/* GRID DE PRODUCCIONES EN 3 COLUMNAS CON TARJETAS FLOTANTES & GLASSMORPHISM */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-32">
+      {/* GRID DE PRODUCCIONES EN 4 COLUMNAS CON TARJETAS FLOTANTES & GLASSMORPHISM */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
         {activeDataset.length === 0 ? (
           <div className="text-center py-20 bg-zinc-900/40 rounded-3xl border border-white/5 backdrop-blur-md">
             <Radio className="w-10 h-10 text-zinc-600 mx-auto mb-3" />
@@ -757,25 +861,21 @@ export default function App() {
               No hay producciones que cumplan con la combinación de filtros y búsqueda actual.
             </p>
             <button
-              onClick={() => {
-                setActiveUniverse('ALL');
-                setActiveFormat('ALL');
-                setSearchQuery('');
-                setFilterCritical(false);
-              }}
+              onClick={resetAllFilters}
               className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-semibold transition-colors"
             >
               Restablecer Filtros
             </button>
           </div>
         ) : (
-          <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-7 relative ${theme.timelineClass}`}>
+          /* 4 COLUMNAS EN PANTALLAS GRANDES (grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4) */
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 sm:gap-6 relative">
             {activeDataset.map((item) => {
               const isWatched = watched.includes(item.id);
               const isCritical = item.cr;
               
               // Resplandor de tarjeta si es de Doomsday
-              let customGlowBorder = 'border-zinc-800';
+              let customGlowBorder = 'border-zinc-800/80';
               if (filterCritical && isCritical && !isWatched) {
                 customGlowBorder = 'border-emerald-500/70 shadow-[0_0_20px_rgba(16,185,129,0.25)]';
               } else if (isCritical && !isWatched) {
@@ -786,18 +886,18 @@ export default function App() {
                 <div
                   key={item.id}
                   onClick={() => setSelectedItem(item)}
-                  className={`timeline-card card-floating group flex flex-col p-5 rounded-2xl cursor-pointer border ${customGlowBorder} ${theme.cardHoverClass} ${
+                  className={`timeline-card card-floating group flex flex-col p-4 sm:p-5 rounded-2xl cursor-pointer border ${customGlowBorder} ${theme.cardHoverClass} ${
                     isWatched
                       ? 'bg-zinc-950/60 opacity-50 hover:opacity-85'
                       : 'bg-zinc-900/80 backdrop-blur-md'
                   }`}
                 >
                   {/* Encabezado de la Tarjeta */}
-                  <div className="flex justify-between items-start mb-3.5">
-                    <div className="flex items-center gap-2">
-                      <span className="font-mono-numbers text-[11px] font-bold px-2 py-0.5 rounded-lg bg-black/60 text-zinc-300 border border-white/10">
+                  <div className="flex justify-between items-start mb-3">
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <span className="font-mono-numbers text-[10px] sm:text-[11px] font-bold px-2 py-0.5 rounded-lg bg-black/60 text-zinc-300 border border-white/10">
                         {sortBy === 'chrono'
-                          ? (item.y_in === 1000 ? 'AÑO: ORIGEN' : `AÑO: ${item.y_in}`)
+                          ? (item.y_in === 1000 ? 'ORIGEN' : item.y_in)
                           : `ESTRENO: ${item.y_out}`}
                       </span>
 
@@ -805,7 +905,7 @@ export default function App() {
                       {item.cr && (
                         <span 
                           title="Producción crítica para la saga de Doctor Doom y Secret Wars"
-                          className="badge-neon badge-doomsday text-[10px] px-2 py-0.5 rounded-lg uppercase flex items-center gap-1"
+                          className="badge-neon badge-doomsday text-[9px] px-1.5 py-0.5 rounded-lg uppercase flex items-center gap-1 font-bold"
                         >
                           <Flame className="w-2.5 h-2.5" />
                           DOOM
@@ -817,7 +917,7 @@ export default function App() {
                     <button
                       onClick={(e) => toggleWatch(e, item.id)}
                       title={isWatched ? 'Desmarcar como vista' : 'Marcar como vista'}
-                      className={`w-7 h-7 rounded-lg flex items-center justify-center border transition-all duration-200 ${
+                      className={`w-7 h-7 rounded-lg flex items-center justify-center border transition-all duration-200 shrink-0 ${
                         isWatched
                           ? `${theme.bgAccent} ${theme.borderAccent} text-white shadow-lg`
                           : 'border-zinc-700 bg-black/50 text-transparent hover:text-zinc-400 hover:border-zinc-500'
@@ -830,18 +930,24 @@ export default function App() {
                   {/* Cuerpo de la Tarjeta */}
                   <div className="flex-1 flex flex-col justify-between">
                     <div>
-                      <h3 className={`font-black text-lg leading-tight mb-1 transition-colors ${
+                      <h3 className={`font-black text-base sm:text-lg leading-tight mb-1.5 transition-colors line-clamp-2 ${
                         isWatched ? 'line-through text-zinc-500' : 'text-white group-hover:text-zinc-100'
                       }`}>
                         {item.tEs}
                       </h3>
                       
-                      <div className="flex items-center gap-2 mb-3">
-                        {/* Badge Holográfico de Universo */}
-                        <span className={`badge-neon text-[10px] px-2 py-0.5 rounded-md uppercase ${getUniverseBadge(item.uni)}`}>
+                      <div className="flex flex-wrap items-center gap-1.5 mb-3">
+                        {/* Badge de Universo */}
+                        <span className={`badge-neon text-[10px] px-2 py-0.5 rounded-md uppercase font-bold ${getUniverseBadge(item.uni)}`}>
                           {item.uni}
                         </span>
-                        <h4 className="text-xs text-zinc-400 italic truncate max-w-[200px]" title={item.tEn}>
+
+                        {/* Badge de Línea Temporal / Earth */}
+                        <span className="badge-neon badge-earth text-[10px] px-2 py-0.5 rounded-md font-mono">
+                          {item.earth === 'Fuera del Tiempo' || item.earth === 'Multiverso' ? item.earth : `E-${item.earth}`}
+                        </span>
+
+                        <h4 className="text-[11px] text-zinc-400 italic truncate max-w-[140px]" title={item.tEn}>
                           {item.tEn}
                         </h4>
                       </div>
@@ -855,7 +961,7 @@ export default function App() {
                         {item.ty === 'movie' && <Film className="w-3 h-3" />}
                         {item.ty === 'series' && <Tv className="w-3 h-3" />}
                         {item.ty === 'oneshot' && <Zap className="w-3 h-3" />}
-                        <span className="capitalize">{item.ty === 'oneshot' ? 'One-Shot' : item.ty === 'movie' ? 'Película' : `Serie (${item.s}T)`}</span>
+                        <span className="capitalize">{item.ty === 'oneshot' ? 'One-Shot' : item.ty === 'movie' ? 'Película' : 'Serie'}</span>
                       </span>
 
                       {/* Duración */}
@@ -879,7 +985,7 @@ export default function App() {
           </div>
         )}
 
-        {/* SECCIÓN COUNTDOWN CLÍMAX INFERIOR: LA META TRAS LAS 103 PRODUCCIONES */}
+        {/* SECCIÓN COUNTDOWN CLÍMAX INFERIOR: LA META TRAS LAS 109 PRODUCCIONES */}
         {renderCountdownSection(true)}
       </main>
 
@@ -929,9 +1035,12 @@ export default function App() {
               
               {/* Badges de Estado y Prioridad */}
               <div className="flex items-center justify-between gap-4">
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <span className={`badge-neon text-xs px-3 py-1 rounded-lg uppercase ${getUniverseBadge(selectedItem.uni)}`}>
                     {getUniverseName(selectedItem.uni)}
+                  </span>
+                  <span className="badge-neon badge-earth text-xs px-3 py-1 rounded-lg font-mono">
+                    {selectedItem.earth === 'Fuera del Tiempo' || selectedItem.earth === 'Multiverso' ? selectedItem.earth : `Tierra-${selectedItem.earth}`}
                   </span>
                   <span className={`badge-neon text-xs px-3 py-1 rounded-lg uppercase ${getFormatBadge(selectedItem.ty)}`}>
                     {selectedItem.ty === 'movie' ? 'Largometraje' : selectedItem.ty === 'series' ? 'Serie de Televisión' : 'Cortometraje Canon'}
@@ -939,12 +1048,12 @@ export default function App() {
                 </div>
 
                 {selectedItem.cr ? (
-                  <span className="badge-neon badge-doomsday text-xs px-3 py-1 rounded-lg font-black uppercase flex items-center gap-1.5 shadow-[0_0_15px_rgba(16,185,129,0.4)]">
+                  <span className="badge-neon badge-doomsday text-xs px-3 py-1 rounded-lg font-black uppercase flex items-center gap-1.5 shadow-[0_0_15px_rgba(16,185,129,0.4)] shrink-0">
                     <Flame className="w-3.5 h-3.5" />
                     RUTA DOOMSDAY
                   </span>
                 ) : (
-                  <span className="px-2.5 py-1 rounded-lg bg-zinc-800 text-zinc-400 text-[10px] font-mono border border-zinc-700">
+                  <span className="px-2.5 py-1 rounded-lg bg-zinc-800 text-zinc-400 text-[10px] font-mono border border-zinc-700 shrink-0">
                     CANON ALTERNO
                   </span>
                 )}
@@ -991,21 +1100,14 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Dirección / Showrunner */}
+              {/* Línea Temporal / Ubicación Multiversal */}
               <div className="flex items-center gap-2 text-xs bg-black/50 px-4 py-3 rounded-2xl border border-white/5">
-                <span className="font-mono text-zinc-500 uppercase tracking-wider text-[11px]">Dirección / Creación:</span>
-                <span className="font-bold text-zinc-100">{selectedItem.dir}</span>
-              </div>
-
-              {/* Sinopsis Clasificada de Operación */}
-              <div className="space-y-1.5">
-                <div className="flex items-center justify-between text-[10px] uppercase font-mono font-bold tracking-widest text-zinc-400">
-                  <span>DESCRIPCIÓN DE MISIÓN / SINOPSIS</span>
-                  <span className="text-zinc-600">CONFIDENCIAL // NIVEL 9</span>
-                </div>
-                <div className="p-4 rounded-2xl bg-black/60 border border-white/10 text-sm text-zinc-300 leading-relaxed font-sans">
-                  {selectedItem.syn}
-                </div>
+                <span className="font-mono text-zinc-500 uppercase tracking-wider text-[11px]">Realidad / Tierra:</span>
+                <span className="font-bold text-zinc-100 font-mono">
+                  {selectedItem.earth === 'Fuera del Tiempo' || selectedItem.earth === 'Multiverso' 
+                    ? selectedItem.earth 
+                    : `Tierra-${selectedItem.earth} (${getUniverseName(selectedItem.uni)})`}
+                </span>
               </div>
 
               {/* Barra de Acciones del Expediente */}
@@ -1034,7 +1136,7 @@ export default function App() {
                   >
                     <ChevronLeft className="w-4 h-4" />
                   </button>
-                  <span className="font-mono text-xs text-zinc-500">
+                  <span className="text-xs font-mono text-zinc-500 px-1">
                     {currentModalIndex + 1} / {activeDataset.length}
                   </span>
                   <button
@@ -1053,76 +1155,21 @@ export default function App() {
         </div>
       )}
 
-      {/* MODAL DE DESCARGA / EXPORTACIÓN DEL ARCHIVO HTML ÚNICO */}
-      {showExportModal && (
-        <div 
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-2xl"
-          onClick={() => setShowExportModal(false)}
-        >
-          <div 
-            className="w-full max-w-lg bg-[#0a0d14] border border-white/20 rounded-3xl p-6 relative shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              onClick={() => setShowExportModal(false)}
-              className="absolute top-4 right-4 text-zinc-400 hover:text-white"
-            >
-              <X className="w-5 h-5" />
-            </button>
-
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-2xl bg-red-600/20 text-red-500 flex items-center justify-center border border-red-500/30">
-                <FileCode className="w-5 h-5" />
-              </div>
-              <div>
-                <h3 className="text-lg font-black text-white">Archivo HTML Único Standalone</h3>
-                <p className="text-xs text-zinc-400">Versión 100% portable para abrir en cualquier navegador</p>
-              </div>
-            </div>
-
-            <p className="text-xs text-zinc-300 leading-relaxed mb-4">
-              Descarga o copia el enlace al archivo único autónomo (<code className="text-red-400 bg-black/50 px-1 py-0.5 rounded">marvel-multiverse-tracker.html</code>). No requiere Node.js ni servidores: funciona sin conexión con React, Babel y Tailwind CSS por CDN conservando tu progreso en localStorage.
-            </p>
-
-            <div className="bg-black/60 p-3.5 rounded-2xl border border-white/10 mb-5 font-mono text-xs text-zinc-400 space-y-1">
-              <div className="flex justify-between">
-                <span>Total producciones:</span>
-                <span className="text-white font-bold">103</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Ruta Doomsday integrada:</span>
-                <span className="text-emerald-400 font-bold">Sí (#10b981)</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Persistencia:</span>
-                <span className="text-zinc-200">localStorage('marvelTrackerProV4')</span>
-              </div>
-            </div>
-
-            <div className="flex gap-3">
-              <a
-                href="/marvel-multiverse-tracker.html"
-                download="marvel-multiverse-tracker.html"
-                className="flex-1 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-lg shadow-red-600/30"
-              >
-                <Download className="w-4 h-4" />
-                Descargar Archivo .HTML
-              </a>
-              <button
-                onClick={() => {
-                  navigator.clipboard.writeText(window.location.origin + '/marvel-multiverse-tracker.html');
-                  setCopiedNotification(true);
-                  setTimeout(() => setCopiedNotification(false), 2500);
-                }}
-                className="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white font-semibold text-xs transition-colors flex items-center gap-1.5"
-              >
-                {copiedNotification ? <CheckCircle2 className="w-4 h-4 text-emerald-400" /> : <Layers className="w-4 h-4" />}
-                {copiedNotification ? '¡Enlace Copiado!' : 'Copiar URL'}
-              </button>
-            </div>
+      {/* FOOTER FIJO / DESCARGO LEGAL OBLIGATORIO */}
+      <footer className="mt-16 border-t border-white/10 bg-[#030306]/95 py-8 px-4 text-center relative z-20">
+        <div className="max-w-4xl mx-auto space-y-2.5">
+          <p className="text-xs text-zinc-500 leading-relaxed font-mono">
+            Sitio creado por fans. Este proyecto no es oficial, no tiene fines de lucro y no está asociado, respaldado ni afiliado de ninguna manera con Marvel Entertainment LLC, Disney, Sony Pictures o 20th Century Studios.
+          </p>
+          <div className="flex items-center justify-center gap-4 text-[10px] text-zinc-600 font-mono uppercase tracking-wider">
+            <span>Cronología Multiversal Actualizada</span>
+            <span>•</span>
+            <span>109 Producciones Oficiales</span>
+            <span>•</span>
+            <span>Multiverse Saga 2026</span>
           </div>
         </div>
-      )}
+      </footer>
     </div>
   );
 }
